@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AURELUXE - The Gentleman's Sale</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles to extend Tailwind */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f7f5; /* A soft, premium off-white */
+        }
+        body.panel-open {
+            overflow: hidden;
+        }
+        h1, h2, h3, .font-serif {
+            font-family: 'Cormorant Garamond', serif;
+        }
+        .logo-text {
+            font-family: 'Cormorant Garamond', serif;
+            letter-spacing: 0.2em;
+            font-weight: 600;
+        }
+        .tagline {
+            font-family: 'Cormorant Garamond', serif;
+            letter-spacing: 0.1em;
+            font-size: 0.8rem;
+            margin-top: -8px;
+        }
+        .product-card-image {
+            transition: opacity 0.3s ease-in-out;
+        }
+        .product-card:hover .product-card-image.primary {
+            opacity: 0;
+        }
+        .product-card:hover .product-card-image.secondary {
+            opacity: 1;
+        }
+        .product-card .actions-overlay {
+            transform: translateY(100%);
+            transition: transform 0.3s ease-in-out, background-color 0.2s;
+        }
+        .product-card:hover .actions-overlay {
+            transform: translateY(0);
+        }
+        .modal-overlay, .panel-overlay {
+            transition: opacity 0.3s ease-in-out;
+        }
+        .modal-content, .side-panel {
+            transition: transform 0.3s ease-in-out;
+        }
+        .toast-notification {
+            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+        }
+        .wishlist-btn.wishlisted svg {
+            fill: #c53030; /* red-700 */
+            color: #c53030;
+        }
+        #mobile-menu {
+            transition: transform 0.3s ease-in-out;
+        }
+        /* QR Code Styling */
+        #qrcode img {
+            margin: 0 auto;
+            border: 6px solid white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- App Container -->
+    <div id="app" class="w-full">
+
+        <!-- Header Section -->
+        <header class="bg-white shadow-sm sticky top-0 z-50">
+            <!-- Top Announcement Bar -->
+            <div class="bg-gray-900 text-white text-center text-xs sm:text-sm py-2">
+                <p>INAUGURAL SALE LIVE | FREE SHIPPING ON ALL PREPAID ORDERS</p>
+            </div>
+
+            <!-- Main Navigation -->
+            <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-20">
+                    <!-- Mobile Menu Button -->
+                    <div class="md:hidden">
+                        <button id="mobile-menu-button" class="text-gray-800 hover:text-gray-600 focus:outline-none">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Logo -->
+                    <div class="flex-shrink-0 flex items-center gap-4">
+                         <!-- NEW Vintage Gentleman SVG Logo -->
+                        <svg class="h-14 w-14 text-gray-900" viewBox="0 0 512 512" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M256 112c-48.6 0-88 39.4-88 88s39.4 88 88 88 88-39.4 88-88-39.4-88-88-88zm0 160c-39.7 0-72-32.3-72-72s32.3-72 72-72 72 32.3 72 72-32.3 72-72 72z"/>
+                            <path d="M256 32C132.3 32 32 132.3 32 256s100.3 224 224 224 224-100.3 224-224S379.7 32 256 32zm0 416c-105.9 0-192-86.1-192-192S150.1 64 256 64s192 86.1 192 192-86.1 192-192 192z"/>
+                            <path d="M352 256c-17.7 0-32-14.3-32-32s14.3-32 32-32 32 14.3 32 32-14.3 32-32 32zM160 256c-17.7 0-32-14.3-32-32s14.3-32 32-32 32 14.3 32 32-14.3 32-32 32z"/>
+                            <path d="M256 320c-53 0-96 21.5-96 48 0 8.8 7.2 16 16 16h160c8.8 0 16-7.2 16-16 0-26.5-43-48-96-48z"/>
+                            <path d="M304 160h-96c-8.8 0-16-7.2-16-16s7.2-16 16-16h96c8.8 0 16 7.2 16 16s-7.2 16-16 16z"/>
+                        </svg>
+                        <div class="text-center">
+                            <div class="text-2xl logo-text">AURELUXE</div>
+                            <div class="tagline">Where Heritage Meets Style</div>
+                        </div>
+                    </div>
+
+                    <!-- Desktop Menu -->
+                    <div class="hidden md:flex md:items-center md:space-x-8">
+                        <a href="#" class="text-gray-600 hover:text-gray-900 font-medium transition duration-150 ease-in-out">SHOP</a>
+                        <a href="#" class="text-gray-600 hover:text-gray-900 font-medium transition duration-150 ease-in-out">NEW ARRIVALS</a>
+                        <a href="#" class="text-red-700 hover:text-red-900 font-bold transition duration-150 ease-in-out">SALE</a>
+                        <a href="#" class="text-gray-600 hover:text-gray-900 font-medium transition duration-150 ease-in-out">THE JOURNAL</a>
+                    </div>
+
+                    <!-- Right Icons -->
+                    <div class="flex items-center space-x-4">
+                        <button class="text-gray-800 hover:text-gray-600">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </button>
+                        <button id="profile-button" class="text-gray-800 hover:text-gray-600">
+                             <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                        </button>
+                        <button id="wishlist-button" class="text-gray-800 hover:text-gray-600 relative">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                            </svg>
+                             <span id="wishlist-count" class="absolute -top-2 -right-2 bg-red-700 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">0</span>
+                        </button>
+                        <button id="cart-button" class="text-gray-800 hover:text-gray-600 relative">
+                           <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                            </svg>
+                            <span id="cart-count" class="absolute -top-2 -right-2 bg-red-700 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">0</span>
+                        </button>
+                    </div>
+                </div>
+            </nav>
+            <!-- Mobile Menu -->
+            <div id="mobile-menu" class="md:hidden bg-white border-t border-gray-200 absolute w-full transform -translate-x-full z-40">
+                <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                    <a href="#" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">SHOP</a>
+                    <a href="#" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">NEW ARRIVALS</a>
+                    <a href="#" class="block px-3 py-2 rounded-md text-base font-medium text-red-700 hover:text-red-900 hover:bg-red-50">SALE</a>
+                    <a href="#" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">THE JOURNAL</a>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Section -->
+        <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <!-- Page Title -->
+            <h1 class="text-4xl md:text-5xl font-bold text-center mb-4 text-gray-900">The Gentleman's Sale</h1>
+            <p class="text-center text-gray-500 mb-10">Limited edition pieces, timeless style. Don't miss out.</p>
+
+            <!-- Filters & Sorting -->
+            <div class="flex flex-col sm:flex-row items-center justify-between mb-8 border-y py-4">
+                 <div class="text-sm text-gray-600 mb-4 sm:mb-0">
+                    Showing <span id="product-count">0</span> products
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <button id="filter-btn" class="flex items-center space-x-2 border rounded-md px-4 py-2 text-sm hover:bg-gray-100 transition">
+                            <span>Filter By</span>
+                            <svg class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                        </button>
+                    </div>
+                    <div class="relative">
+                        <button id="sort-btn" class="flex items-center space-x-2 border rounded-md px-4 py-2 text-sm hover:bg-gray-100 transition">
+                            <span>Sort By: Featured</span>
+                            <svg class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Grid -->
+            <div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+                <!-- Product cards will be injected here by JavaScript -->
+            </div>
+
+        </main>
+        
+        <!-- Footer Section -->
+        <footer class="bg-white border-t mt-16">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                    <!-- Column 1: Help -->
+                    <div>
+                        <h3 class="font-semibold text-gray-900 mb-4">HELP</h3>
+                        <ul class="space-y-3 text-sm text-gray-600">
+                            <li><a href="#" class="hover:underline">Contact Us</a></li>
+                            <li><a href="#" class="hover:underline">FAQs</a></li>
+                            <li><a href="#" class="hover:underline">Track Order</a></li>
+                        </ul>
+                    </div>
+                    <!-- Column 2: Company -->
+                    <div>
+                        <h3 class="font-semibold text-gray-900 mb-4">COMPANY</h3>
+                        <ul class="space-y-3 text-sm text-gray-600">
+                            <li><a href="#" class="hover:underline">About AURELUXE</a></li>
+                            <li><a href="#" class="hover:underline">The Journal</a></li>
+                            <li><a href="#" class="hover:underline">Careers</a></li>
+                        </ul>
+                    </div>
+                    <!-- Column 3: Policies -->
+                    <div>
+                        <h3 class="font-semibold text-gray-900 mb-4">POLICIES</h3>
+                        <ul class="space-y-3 text-sm text-gray-600">
+                            <li><a href="#" class="hover:underline">Shipping Policy</a></li>
+                            <li><a href="#" class="hover:underline">Return & Exchange</a></li>
+                            <li><a href="#" class="hover:underline">Privacy Policy</a></li>
+                        </ul>
+                    </div>
+                    <!-- Column 4: Newsletter -->
+                    <div>
+                        <h3 class="font-semibold text-gray-900 mb-4">JOIN OUR NEWSLETTER</h3>
+                        <p class="text-sm text-gray-600 mb-4">Receive updates on new arrivals and special promotions.</p>
+                        <form class="flex w-full">
+                            <input type="email" placeholder="Enter your email" class="flex-grow w-auto border-gray-300 rounded-l-md focus:ring-gray-800 focus:border-gray-800 text-sm">
+                            <button type="submit" class="bg-gray-900 text-white px-4 rounded-r-md hover:bg-gray-700 transition flex-shrink-0">Subscribe</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="border-t mt-12 pt-8 flex flex-col sm:flex-row justify-between items-center text-sm text-gray-500">
+                    <p>&copy; 2025 AURELUXE. All Rights Reserved.</p>
+                    <div class="flex space-x-4 mt-4 sm:mt-0">
+                        <!-- Social Icons could go here -->
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Overlays and Side Panels -->
+    <div id="panel-overlay" class="panel-overlay fixed inset-0 bg-black bg-opacity-50 z-[60] hidden opacity-0"></div>
+
+    <!-- Cart Panel -->
+    <div id="cart-panel" class="side-panel fixed top-0 right-0 h-full w-full max-w-sm bg-white shadow-lg z-[70] transform translate-x-full flex flex-col">
+        <div class="flex items-center justify-between p-4 border-b">
+            <h2 class="text-xl font-serif font-semibold">Shopping Cart</h2>
+            <button id="close-cart-panel" class="text-gray-600 hover:text-gray-900">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+        </div>
+        <div id="cart-items-container" class="flex-grow p-4 overflow-y-auto">
+            <!-- Cart items will be injected here -->
+        </div>
+        <div id="cart-footer" class="p-4 border-t">
+            <!-- Cart subtotal and checkout button will be here -->
+        </div>
+    </div>
+
+    <!-- Wishlist Panel -->
+    <div id="wishlist-panel" class="side-panel fixed top-0 right-0 h-full w-full max-w-sm bg-white shadow-lg z-[70] transform translate-x-full flex flex-col">
+        <div class="flex items-center justify-between p-4 border-b">
+            <h2 class="text-xl font-serif font-semibold">Wishlist</h2>
+            <button id="close-wishlist-panel" class="text-gray-600 hover:text-gray-900">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+        </div>
+        <div id="wishlist-items-container" class="flex-grow p-4 overflow-y-auto">
+            <!-- Wishlist items will be injected here -->
+        </div>
+    </div>
+
+
+    <!-- Product Modal -->
+    <div id="product-modal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[60] hidden opacity-0">
+        <div id="modal-content" class="modal-content bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto flex flex-col md:flex-row transform scale-95">
+            <!-- Modal content will be injected by JS -->
+        </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div id="checkout-modal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[60] hidden opacity-0">
+        <div id="checkout-modal-content" class="modal-content bg-white rounded-lg w-full max-w-md max-h-[90vh] overflow-y-auto transform scale-95">
+            <div class="p-6">
+                <div class="flex justify-between items-start mb-4">
+                     <h2 id="checkout-title" class="text-2xl font-serif font-bold">Shipping Address</h2>
+                     <button id="checkout-close-btn" class="text-gray-500 hover:text-gray-800 text-2xl font-bold">&times;</button>
+                </div>
+               
+                <!-- Step 1: Address Form -->
+                <div id="address-step">
+                    <form id="address-form" class="space-y-4">
+                        <input type="text" placeholder="Full Name" required class="w-full border-gray-300 rounded-md p-2 text-sm">
+                        <textarea placeholder="Shipping Address" required rows="3" class="w-full border-gray-300 rounded-md p-2 text-sm"></textarea>
+                        <div class="grid grid-cols-2 gap-4">
+                            <input type="text" placeholder="City" required class="w-full border-gray-300 rounded-md p-2 text-sm">
+                            <input type="text" placeholder="State" required class="w-full border-gray-300 rounded-md p-2 text-sm">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <input type="text" placeholder="Pincode" required class="w-full border-gray-300 rounded-md p-2 text-sm">
+                            <input type="tel" placeholder="Phone Number" required class="w-full border-gray-300 rounded-md p-2 text-sm">
+                        </div>
+                        <button type="submit" class="w-full bg-gray-900 text-white py-3 rounded-md hover:bg-gray-700 transition font-semibold">Continue to Payment</button>
+                    </form>
+                </div>
+
+                <!-- Step 2: Payment -->
+                <div id="payment-step" class="hidden text-center">
+                    <p class="text-gray-600 mb-4">Scan the QR code with your UPI app to complete the payment.</p>
+                    <div id="qrcode" class="mb-4"></div>
+                    <p class="font-semibold">Or pay to UPI ID:</p>
+                    <p class="text-lg text-blue-600 bg-gray-100 p-2 rounded-md my-2">mohdowais0100-3@okaxis</p>
+                    <button id="payment-done-btn" class="w-full bg-green-600 text-white py-3 rounded-md hover:bg-green-700 transition font-semibold mt-4">I've Completed the Payment</button>
+                    <button id="back-to-address-btn" class="text-sm text-gray-600 hover:underline mt-4">Back to Address</button>
+                </div>
+
+                <!-- Step 3: Confirmation -->
+                <div id="confirmation-step" class="hidden text-center py-8">
+                    <svg class="w-16 h-16 text-green-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <h3 class="text-2xl font-serif font-bold mb-2">Thank You!</h3>
+                    <p class="text-gray-600 mb-4">Your order has been placed successfully.</p>
+                    <p class="font-semibold">Your Order ID:</p>
+                    <p id="order-id" class="text-lg text-blue-600 bg-gray-100 p-2 rounded-md my-2"></p>
+                    <button id="continue-shopping-btn" class="w-full bg-gray-900 text-white py-3 rounded-md hover:bg-gray-700 transition font-semibold mt-6">Continue Shopping</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast Notification -->
+    <div id="toast-notification" class="fixed bottom-5 right-5 bg-gray-900 text-white py-3 px-5 rounded-lg shadow-lg transform translate-y-20 opacity-0 z-[80]">
+        <!-- Toast message will be injected by JS -->
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- STATE MANAGEMENT ---
+            let cart = []; // Array of objects: { id: productId, quantity: number }
+            let wishlist = []; // Array of product IDs
+
+            // --- Product Data ---
+            const products = [
+                {
+                    id: 1,
+                    name: "The Viceroy Linen Shirt",
+                    description: "Crafted from premium Irish linen, this shirt offers unparalleled breathability and a relaxed, sophisticated drape. Perfect for warm-weather occasions, its classic cut ensures timeless style.",
+                    originalPrice: 3999,
+                    salePrice: 2399,
+                    image1: "https://images.pexels.com/photos/1043474/pexels-photo-1043474.jpeg?auto=compress&cs=tinysrgb&w=800",
+                    image2: "https://images.pexels.com/photos/3755706/pexels-photo-3755706.jpeg?auto=compress&cs=tinysrgb&w=800",
+                },
+                {
+                    id: 2,
+                    name: "Ascot Paisley Pocket Square",
+                    description: "A pure silk pocket square featuring an intricate paisley pattern. Add a dash of personality and refined charm to any blazer or suit jacket.",
+                    originalPrice: 1499,
+                    salePrice: 899,
+                    image1: "https://images.pexels.com/photos/17693836/pexels-photo-17693836/free-photo-of-close-up-of-a-man-in-a-suit-with-a-pocket-square.jpeg?auto=compress&cs=tinysrgb&w=800",
+                    image2: "https://images.pexels.com/photos/6626903/pexels-photo-6626903.jpeg?auto=compress&cs=tinysrgb&w=800",
+                },
+                {
+                    id: 3,
+                    name: "Regent Leather Bi-Fold Wallet",
+                    description: "Hand-stitched from full-grain leather, this wallet develops a rich patina over time. Features six card slots and a full-length bill compartment.",
+                    originalPrice: 2999,
+                    salePrice: 1799,
+                    image1: "https://images.pexels.com/photos/5795640/pexels-photo-5795640.jpeg?auto=compress&cs=tinysrgb&w=800",
+                    image2: "https://images.pexels.com/photos/11993478/pexels-photo-11993478.jpeg?auto=compress&cs=tinysrgb&w=800",
+                },
+                {
+                    id: 4,
+                    name: "Kensington Wool Trousers",
+                    description: "Tailored from fine merino wool, these trousers offer a sharp silhouette with a comfortable fit. A versatile staple for both business and formal events.",
+                    originalPrice: 4999,
+                    salePrice: 2999,
+                    image1: "https://images.pexels.com/photos/899321/pexels-photo-899321.jpeg?auto=compress&cs=tinysrgb&w=800",
+                    image2: "https://images.pexels.com/photos/208052/pexels-photo-208052.jpeg?auto=compress&cs=tinysrgb&w=800",
+                },
+                {
+                    id: 5,
+                    name: "Savile Row Checkered Blazer",
+                    description: "A modern take on a classic pattern. This half-canvassed blazer is made from a wool-silk blend for a lightweight feel and a flattering drape.",
+                    originalPrice: 9999,
+                    salePrice: 5999,
+                    image1: "https://images.pexels.com/photos/3779323/pexels-photo-3779323.jpeg?auto=compress&cs=tinysrgb&w=800",
+                    image2: "https://images.pexels.com/photos/3779322/pexels-photo-3779322.jpeg?auto=compress&cs=tinysrgb&w=800",
+                },
+                {
+                    id: 6,
+                    name: "Oxford Leather Loafers",
+                    description: "Constructed with a Blake stitch for flexibility and durability, these calfskin leather loafers are the epitome of slip-on elegance.",
+                    originalPrice: 6999,
+                    salePrice: 4199,
+                    image1: "https://images.pexels.com/photos/267301/pexels-photo-267301.jpeg?auto=compress&cs=tinysrgb&w=800",
+                    image2: "https://images.pexels.com/photos/4252950/pexels-photo-4252950.jpeg?auto=compress&cs=tinysrgb&w=800",
+                },
+                {
+                    id: 7,
+                    name: "Monogrammed Silk Tie",
+                    description: "Woven from 100% mulberry silk, this tie features a subtle geometric monogram pattern, offering a touch of understated luxury.",
+                    originalPrice: 1999,
+                    salePrice: 1199,
+                    image1: "https://images.pexels.com/photos/159497/school-uniform-school-uniforms-school-tie-159497.jpeg?auto=compress&cs=tinysrgb&w=800",
+                    image2: "https://images.pexels.com/photos/3768864/pexels-photo-3768864.jpeg?auto=compress&cs=tinysrgb&w=800",
+                },
+                {
+                    id: 8,
+                    name: "Heritage Cotton Chinos",
+                    description: "Our signature chinos are made from soft, durable brushed cotton with a hint of stretch for comfort. A wardrobe essential for any discerning gentleman.",
+                    originalPrice: 3499,
+                    salePrice: 2099,
+                    image1: "https://images.pexels.com/photos/1598507/pexels-photo-1598507.jpeg?auto=compress&cs=tinysrgb&w=800",
+                    image2: "https://images.pexels.com/photos/2249252/pexels-photo-2249252.jpeg?auto=compress&cs=tinysrgb&w=800",
+                }
+            ];
+
+            // --- DOM Elements ---
+            const body = document.body;
+            const productGrid = document.getElementById('product-grid');
+            const productCountEl = document.getElementById('product-count');
+            const toast = document.getElementById('toast-notification');
+            
+            // Cart elements
+            const cartButton = document.getElementById('cart-button');
+            const cartCountEl = document.getElementById('cart-count');
+            const cartPanel = document.getElementById('cart-panel');
+            const closeCartPanelBtn = document.getElementById('close-cart-panel');
+            const cartItemsContainer = document.getElementById('cart-items-container');
+            const cartFooter = document.getElementById('cart-footer');
+
+            // Wishlist elements
+            const wishlistButton = document.getElementById('wishlist-button');
+            const wishlistCountEl = document.getElementById('wishlist-count');
+            const wishlistPanel = document.getElementById('wishlist-panel');
+            const closeWishlistPanelBtn = document.getElementById('close-wishlist-panel');
+            const wishlistItemsContainer = document.getElementById('wishlist-items-container');
+
+            // Product Modal elements
+            const productModal = document.getElementById('product-modal');
+            const productModalContent = document.getElementById('modal-content');
+            
+            // Checkout Modal elements
+            const checkoutModal = document.getElementById('checkout-modal');
+            const checkoutModalContent = document.getElementById('checkout-modal-content');
+            const checkoutCloseBtn = document.getElementById('checkout-close-btn');
+            const checkoutTitle = document.getElementById('checkout-title');
+            const addressStep = document.getElementById('address-step');
+            const paymentStep = document.getElementById('payment-step');
+            const confirmationStep = document.getElementById('confirmation-step');
+            const addressForm = document.getElementById('address-form');
+            const backToAddressBtn = document.getElementById('back-to-address-btn');
+            const paymentDoneBtn = document.getElementById('payment-done-btn');
+            const continueShoppingBtn = document.getElementById('continue-shopping-btn');
+            const orderIdEl = document.getElementById('order-id');
+            const qrCodeContainer = document.getElementById('qrcode');
+            let qrCodeInstance = null;
+            
+            // Other buttons
+            const mobileMenu = document.getElementById('mobile-menu');
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const filterBtn = document.getElementById('filter-btn');
+            const sortBtn = document.getElementById('sort-btn');
+            const profileButton = document.getElementById('profile-button');
+            const panelOverlay = document.getElementById('panel-overlay');
+
+            // --- RENDER FUNCTIONS ---
+            
+            function renderCart() {
+                cartItemsContainer.innerHTML = '';
+                if (cart.length === 0) {
+                    cartItemsContainer.innerHTML = `<p class="text-center text-gray-500">Your cart is empty.</p>`;
+                    cartFooter.innerHTML = '';
+                    return;
+                }
+
+                let subtotal = 0;
+                cart.forEach(cartItem => {
+                    const product = products.find(p => p.id === cartItem.id);
+                    subtotal += product.salePrice * cartItem.quantity;
+                    
+                    cartItemsContainer.innerHTML += `
+                        <div class="flex items-start gap-4 mb-4" data-product-id="${product.id}">
+                            <img src="${product.image1}" alt="${product.name}" class="w-20 h-24 object-cover rounded-md">
+                            <div class="flex-grow">
+                                <h3 class="font-semibold text-sm">${product.name}</h3>
+                                <p class="text-gray-500 text-sm">Quantity: ${cartItem.quantity}</p>
+                                <p class="font-semibold text-sm mt-1">₹${(product.salePrice * cartItem.quantity).toLocaleString('en-IN')}</p>
+                            </div>
+                            <button class="remove-from-cart-btn text-gray-400 hover:text-red-600">&times;</button>
+                        </div>
+                    `;
+                });
+
+                cartFooter.innerHTML = `
+                    <div class="flex justify-between items-center font-semibold mb-4">
+                        <span>Subtotal</span>
+                        <span>₹${subtotal.toLocaleString('en-IN')}</span>
+                    </div>
+                    <button id="proceed-to-checkout-btn" class="w-full bg-gray-900 text-white py-3 rounded-md hover:bg-gray-700 transition font-semibold">Proceed to Checkout</button>
+                `;
+            }
+            
+            function renderWishlist() {
+                wishlistItemsContainer.innerHTML = '';
+                if (wishlist.length === 0) {
+                    wishlistItemsContainer.innerHTML = `<p class="text-center text-gray-500">Your wishlist is empty.</p>`;
+                    return;
+                }
+
+                wishlist.forEach(productId => {
+                    const product = products.find(p => p.id === productId);
+                    wishlistItemsContainer.innerHTML += `
+                        <div class="flex items-start gap-4 mb-4" data-product-id="${product.id}">
+                            <img src="${product.image1}" alt="${product.name}" class="w-20 h-24 object-cover rounded-md">
+                            <div class="flex-grow">
+                                <h3 class="font-semibold text-sm">${product.name}</h3>
+                                <p class="font-semibold text-sm mt-1">₹${product.salePrice.toLocaleString('en-IN')}</p>
+                                <button class="move-to-cart-btn text-sm text-blue-600 hover:underline mt-2">Move to Cart</button>
+                            </div>
+                            <button class="remove-from-wishlist-btn text-gray-400 hover:text-red-600">&times;</button>
+                        </div>
+                    `;
+                });
+            }
+
+            function renderProducts() {
+                if (!productGrid) return;
+                productGrid.innerHTML = '';
+                
+                products.forEach(product => {
+                    const discount = Math.round(((product.originalPrice - product.salePrice) / product.originalPrice) * 100);
+                    const isWishlisted = wishlist.includes(product.id);
+                    const card = document.createElement('div');
+                    card.className = 'product-card group relative cursor-pointer';
+                    card.setAttribute('data-product-id', product.id);
+                    
+                    card.innerHTML = `
+                        <div class="relative w-full aspect-[3/4] overflow-hidden rounded-md bg-gray-200">
+                            <img src="${product.image1}" alt="${product.name}" class="product-card-image primary absolute inset-0 h-full w-full object-cover">
+                            <img src="${product.image2}" alt="${product.name} alternate view" class="product-card-image secondary absolute inset-0 h-full w-full object-cover opacity-0">
+                            <div class="absolute top-3 left-3 bg-white text-red-700 text-xs font-semibold px-2 py-1 rounded-full z-10">
+                                ${discount}% OFF
+                            </div>
+                            <button class="wishlist-btn absolute top-3 right-3 bg-white p-2 rounded-full text-gray-700 hover:text-red-600 transition z-10 ${isWishlisted ? 'wishlisted' : ''}" data-product-id="${product.id}">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+                            </button>
+                            <div class="actions-overlay absolute bottom-0 left-0 right-0 p-3 bg-black bg-opacity-20 backdrop-blur-sm">
+                                <button class="add-to-cart-btn w-full bg-white text-gray-900 text-sm font-semibold py-2.5 rounded-md hover:bg-gray-200 transition" data-product-id="${product.id}">
+                                    Add to Cart
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-4 text-center">
+                            <h3 class="text-sm sm:text-base font-serif font-semibold text-gray-800 group-hover:underline">${product.name}</h3>
+                            <p class="mt-1 text-sm sm:text-base">
+                                <span class="font-semibold text-gray-900">₹${product.salePrice.toLocaleString('en-IN')}</span>
+                                <span class="ml-2 text-gray-500 line-through">₹${product.originalPrice.toLocaleString('en-IN')}</span>
+                            </p>
+                        </div>
+                    `;
+                    productGrid.appendChild(card);
+                });
+
+                if (productCountEl) {
+                    productCountEl.textContent = products.length;
+                }
+            }
+            
+            // --- UI & STATE HANDLER FUNCTIONS ---
+
+            function generateOrderId() {
+                const timestamp = Math.floor(Date.now() / 1000);
+                const randomPart = Math.random().toString(36).substring(2, 6).toUpperCase();
+                return `AUR-${timestamp}-${randomPart}`;
+            }
+
+            function updateCartCount() {
+                cartCountEl.textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
+            }
+            
+            function updateWishlistCount() {
+                wishlistCountEl.textContent = wishlist.length;
+            }
+
+            function showToast(message) {
+                toast.textContent = message;
+                toast.classList.remove('opacity-0', 'translate-y-20');
+                setTimeout(() => {
+                    toast.classList.add('opacity-0', 'translate-y-20');
+                }, 2000);
+            }
+
+            function handleAddToCart(productId, quantity = 1) {
+                const existingProductIndex = cart.findIndex(item => item.id === productId);
+                if (existingProductIndex > -1) {
+                    cart[existingProductIndex].quantity += quantity;
+                } else {
+                    cart.push({ id: productId, quantity: quantity });
+                }
+                showToast(`Added to cart`);
+                updateCartCount();
+                renderCart();
+            }
+
+            function handleRemoveFromCart(productId) {
+                cart = cart.filter(item => item.id !== productId);
+                updateCartCount();
+                renderCart();
+            }
+            
+            function handleToggleWishlist(productId, buttonEl) {
+                const index = wishlist.indexOf(productId);
+                if (index > -1) {
+                    wishlist.splice(index, 1);
+                    if(buttonEl) buttonEl.classList.remove('wishlisted');
+                    showToast('Removed from wishlist');
+                } else {
+                    wishlist.push(productId);
+                    if(buttonEl) buttonEl.classList.add('wishlisted');
+                    showToast('Added to wishlist');
+                }
+                updateWishlistCount();
+                renderWishlist();
+                
+                const gridBtn = productGrid.querySelector(`.wishlist-btn[data-product-id="${productId}"]`);
+                if (gridBtn) {
+                    wishlist.includes(productId) ? gridBtn.classList.add('wishlisted') : gridBtn.classList.remove('wishlisted');
+                }
+            }
+
+            function handleMoveToCart(productId) {
+                handleAddToCart(productId);
+                wishlist = wishlist.filter(id => id !== productId);
+                updateWishlistCount();
+                renderWishlist();
+                showToast('Moved to cart');
+            }
+            
+            // --- PANEL & MODAL FUNCTIONS ---
+
+            function openPanel(panel) {
+                closePanels();
+                panel.classList.remove('translate-x-full');
+                panelOverlay.classList.remove('hidden');
+                setTimeout(() => panelOverlay.classList.remove('opacity-0'), 10);
+                body.classList.add('panel-open');
+            }
+
+            function closePanels() {
+                cartPanel.classList.add('translate-x-full');
+                wishlistPanel.classList.add('translate-x-full');
+                panelOverlay.classList.add('opacity-0');
+                setTimeout(() => panelOverlay.classList.add('hidden'), 300);
+                body.classList.remove('panel-open');
+            }
+
+            function openModal(modalEl, contentEl) {
+                modalEl.classList.remove('hidden');
+                setTimeout(() => {
+                    modalEl.classList.remove('opacity-0');
+                    contentEl.classList.remove('scale-95');
+                }, 10);
+            }
+            
+            function closeModal(modalEl, contentEl) {
+                 modalEl.classList.add('opacity-0');
+                 contentEl.classList.add('scale-95');
+                setTimeout(() => {
+                    modalEl.classList.add('hidden');
+                     // Reset checkout modal on close
+                    if (modalEl === checkoutModal) {
+                        setTimeout(() => {
+                             addressStep.classList.remove('hidden');
+                             paymentStep.classList.add('hidden');
+                             confirmationStep.classList.add('hidden');
+                             checkoutTitle.textContent = "Shipping Address";
+                             addressForm.reset();
+                        }, 300);
+                    }
+                }, 300);
+            }
+
+            function openProductModal(product) {
+                let quantity = 1;
+                const isWishlisted = wishlist.includes(product.id);
+                productModalContent.innerHTML = `
+                    <div class="w-full md:w-1/2 p-4">
+                        <img src="${product.image1}" alt="${product.name}" class="w-full h-full object-cover rounded-lg">
+                    </div>
+                    <div class="w-full md:w-1/2 p-6 flex flex-col justify-center relative">
+                        <button id="product-modal-close-btn" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 z-10">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                        </button>
+                        <h2 class="text-3xl font-serif font-bold text-gray-900 mb-2">${product.name}</h2>
+                        <p class="text-xl mb-4">
+                            <span class="font-semibold text-gray-900">₹${product.salePrice.toLocaleString('en-IN')}</span>
+                            <span class="ml-3 text-gray-500 line-through">₹${product.originalPrice.toLocaleString('en-IN')}</span>
+                        </p>
+                        <p class="text-gray-600 mb-6">${product.description}</p>
+                        <div class="flex items-center space-x-4 mb-6">
+                            <div class="flex items-center border rounded">
+                                <button id="quantity-minus" class="px-3 py-1 text-lg">-</button>
+                                <span id="quantity-display" class="px-4 py-1">${quantity}</span>
+                                <button id="quantity-plus" class="px-3 py-1 text-lg">+</button>
+                            </div>
+                            <div class="text-sm">Select Size</div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                             <button class="modal-add-to-cart-btn w-full bg-gray-900 text-white py-3 rounded-md hover:bg-gray-700 transition font-semibold">ADD TO CART</button>
+                             <button class="modal-wishlist-btn p-3 border rounded-md hover:bg-gray-100 transition ${isWishlisted ? 'wishlisted' : ''}">
+                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                openModal(productModal, productModalContent);
+                
+                document.getElementById('product-modal-close-btn').addEventListener('click', () => closeModal(productModal, productModalContent));
+                productModal.querySelector('.modal-add-to-cart-btn').addEventListener('click', () => {
+                    handleAddToCart(product.id, quantity);
+                    closeModal(productModal, productModalContent);
+                });
+                productModal.querySelector('.modal-wishlist-btn').addEventListener('click', (e) => handleToggleWishlist(product.id, e.currentTarget));
+                
+                const qtyDisplay = document.getElementById('quantity-display');
+                document.getElementById('quantity-plus').addEventListener('click', () => {
+                    quantity++;
+                    qtyDisplay.textContent = quantity;
+                });
+                document.getElementById('quantity-minus').addEventListener('click', () => {
+                    if (quantity > 1) {
+                        quantity--;
+                        qtyDisplay.textContent = quantity;
+                    }
+                });
+            }
+            
+            // --- EVENT LISTENERS ---
+            
+            productGrid.addEventListener('click', function(e) {
+                const card = e.target.closest('.product-card');
+                if (!card) return;
+                const productId = parseInt(card.dataset.productId);
+                const product = products.find(p => p.id === productId);
+                if (!product) return;
+                
+                if (e.target.closest('.add-to-cart-btn')) {
+                    handleAddToCart(product.id);
+                } else if (e.target.closest('.wishlist-btn')) {
+                    handleToggleWishlist(product.id, e.target.closest('.wishlist-btn'));
+                } else {
+                    openProductModal(product);
+                }
+            });
+
+            cartItemsContainer.addEventListener('click', function(e) {
+                if (e.target.closest('.remove-from-cart-btn')) {
+                    const productId = parseInt(e.target.closest('[data-product-id]').dataset.productId);
+                    handleRemoveFromCart(productId);
+                }
+            });
+
+            wishlistItemsContainer.addEventListener('click', function(e) {
+                const itemEl = e.target.closest('[data-product-id]');
+                if (!itemEl) return;
+                const productId = parseInt(itemEl.dataset.productId);
+
+                if (e.target.closest('.remove-from-wishlist-btn')) {
+                    handleToggleWishlist(productId, null);
+                } else if (e.target.closest('.move-to-cart-btn')) {
+                    handleMoveToCart(productId);
+                }
+            });
+            
+            cartFooter.addEventListener('click', (e) => {
+                if(e.target.id === 'proceed-to-checkout-btn') {
+                    closePanels();
+                    openModal(checkoutModal, checkoutModalContent);
+                }
+            });
+
+            addressForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                addressStep.classList.add('hidden');
+                paymentStep.classList.remove('hidden');
+                checkoutTitle.textContent = "Complete Payment";
+                
+                const subtotal = cart.reduce((sum, item) => {
+                    const product = products.find(p => p.id === item.id);
+                    return sum + product.salePrice * item.quantity;
+                }, 0);
+
+                const upiString = `upi://pay?pa=mohdowais0100-3@okaxis&pn=AURELUXE&am=${subtotal.toFixed(2)}&cu=INR`;
+                qrCodeContainer.innerHTML = '';
+                qrCodeInstance = new QRCode(qrCodeContainer, {
+                    text: upiString,
+                    width: 200,
+                    height: 200,
+                    colorDark : "#000000",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.H
+                });
+            });
+
+            backToAddressBtn.addEventListener('click', () => {
+                paymentStep.classList.add('hidden');
+                addressStep.classList.remove('hidden');
+                checkoutTitle.textContent = "Shipping Address";
+            });
+            
+            paymentDoneBtn.addEventListener('click', () => {
+                paymentStep.classList.add('hidden');
+                confirmationStep.classList.remove('hidden');
+                checkoutTitle.textContent = "Order Confirmed";
+                orderIdEl.textContent = generateOrderId();
+                // Clear cart
+                cart = [];
+                updateCartCount();
+                renderCart();
+            });
+
+            continueShoppingBtn.addEventListener('click', () => {
+                closeModal(checkoutModal, checkoutModalContent);
+            });
+
+            // General UI Clicks
+            productModal.addEventListener('click', (e) => { if (e.target === productModal) closeModal(productModal, productModalContent); });
+            checkoutModal.addEventListener('click', (e) => { if (e.target === checkoutModal) closeModal(checkoutModal, checkoutModalContent); });
+            checkoutCloseBtn.addEventListener('click', () => closeModal(checkoutModal, checkoutModalContent));
+            
+            panelOverlay.addEventListener('click', closePanels);
+            cartButton.addEventListener('click', () => { renderCart(); openPanel(cartPanel); });
+            closeCartPanelBtn.addEventListener('click', closePanels);
+            wishlistButton.addEventListener('click', () => { renderWishlist(); openPanel(wishlistPanel); });
+            closeWishlistPanelBtn.addEventListener('click', closePanels);
+            profileButton.addEventListener('click', () => showToast('Profile feature coming soon!'));
+            mobileMenuButton.addEventListener('click', () => mobileMenu.classList.toggle('-translate-x-full'));
+            filterBtn.addEventListener('click', () => showToast('Filter feature coming soon!'));
+            sortBtn.addEventListener('click', () => showToast('Sort feature coming soon!'));
+
+
+            // --- INITIAL RENDER ---
+            renderProducts();
+            updateCartCount();
+            updateWishlistCount();
+        });
+    </script>
+</body>
+</html>
+
+ logoutButton = document.getElementById('logoutButton');
+            const loginError = document.getElementById('login-error');
+            
+            // Forms and messages
+            const createCollectionForm = document.getElementById('createCollectionForm');
+            const collectionSuccessMessage = document.getElementById('collection-success-message');
+            const collectionErrorMessage = document.getElementById('collection-error-message');
+            const collectionErrorText = document.getElementById('collection-error-text');
+            const addProductForm = document.getElementById('addProductForm');
+            const productSuccessMessage = document.getElementById('product-success-message');
+            const updateBannerForm = document.getElementById('updateBannerForm');
+            const bannerSuccessMessage = document.getElementById('banner-success-message');
+            const removeProductForm = document.getElementById('removeProductForm');
+            const removeProductSuccessMessage = document.getElementById('remove-product-success-message');
+            const editProductSuccessMessage = document.getElementById('edit-product-success-message');
+
+            // Select dropdowns
+            const productCollectionSelect = document.getElementById('productCollection');
+            const bannerCollectionSelect = document.getElementById('bannerCollectionSelect');
+            const removeProductCollectionSelect = document.getElementById('removeProductCollectionSelect');
+            const productToRemoveSelect = document.getElementById('productToRemoveSelect');
+            const manageCollectionSelect = document.getElementById('manageCollectionSelect');
+            
+            // Search inputs
+            const searchProductToRemoveInput = document.getElementById('searchProductToRemove');
+            const searchProductToManageInput = document.getElementById('searchProductToManage');
+
+            // Product Management
+            const productListContainer = document.getElementById('productListContainer');
+
+            // Edit Modal
+            const editProductModal = document.getElementById('editProductModal');
+            const editProductForm = document.getElementById('editProductForm');
+            const closeEditModal = document.getElementById('closeEditModal');
+
+            // Reset
+            const resetDataButton = document.getElementById('resetDataButton');
+            const resetConfirmModal = document.getElementById('resetConfirmModal');
+            const cancelReset = document.getElementById('cancelReset');
+            const confirmReset = document.getElementById('confirmReset');
+
+            function populateProductsForManagement(collectionName, searchTerm = '') {
+                productListContainer.innerHTML = '';
+                const collection = collectionsData[collectionName];
+                const products = collection ? collection.products : [];
+                
+                if (!products || products.length === 0) {
+                    productListContainer.innerHTML = `<p class="text-center text-gray-500 p-4">No products in this collection.</p>`;
+                    return;
+                }
+
+                const lowerCaseSearchTerm = searchTerm.toLowerCase();
+                const filteredProducts = products.filter(p => p.name.toLowerCase().includes(lowerCaseSearchTerm));
+                
+                if (filteredProducts.length === 0) {
+                    productListContainer.innerHTML = `<p class="text-center text-gray-500 p-4">No matching products found.</p>`;
+                    return;
+                }
+                
+                filteredProducts.forEach(product => {
+                    const productIndex = products.indexOf(product);
+                    const productElement = document.createElement('div');
+                    productElement.className = 'flex items-center justify-between p-3 bg-white rounded-md shadow-sm';
+                    productElement.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <img src="${product.imageUrl}" alt="${product.name}" class="w-12 h-12 object-cover rounded">
+                            <div>
+                                <p class="font-semibold">${product.name}</p>
+                                <p class="text-sm text-gray-600">${product.price}</p>
+                            </div>
+                        </div>
+                        <button class="edit-product-btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-3 rounded text-sm" data-collection="${collectionName}" data-index="${productIndex}">Edit</button>
+                    `;
+                    productListContainer.appendChild(productElement);
+                });
+            }
+
+            function populateProductsToRemoveSelect(collectionName, searchTerm = '') {
+                productToRemoveSelect.innerHTML = '';
+                const collection = collectionsData[collectionName];
+                const products = collection ? collection.products : [];
+                
+                if (!products || products.length === 0) {
+                    const option = document.createElement('option');
+                    option.textContent = "No products in this collection";
+                    option.disabled = true;
+                    productToRemoveSelect.appendChild(option);
+                    return;
+                }
+
+                const lowerCaseSearchTerm = searchTerm.toLowerCase();
+                const filteredProducts = products
+                    .map((product, index) => ({ ...product, originalIndex: index }))
+                    .filter(product => product.name.toLowerCase().includes(lowerCaseSearchTerm));
+
+                if (filteredProducts.length === 0) {
+                    const option = document.createElement('option');
+                    option.textContent = "No matching products found";
+                    option.disabled = true;
+                    productToRemoveSelect.appendChild(option);
+                    return;
+                }
+
+                filteredProducts.forEach(product => {
+                    const option = document.createElement('option');
+                    option.value = product.originalIndex;
+                    option.textContent = product.name;
+                    productToRemoveSelect.appendChild(option);
+                });
+            }
+            
+            function populateCollectionSelects() {
+                productCollectionSelect.innerHTML = '';
+                bannerCollectionSelect.innerHTML = '';
+                removeProductCollectionSelect.innerHTML = '';
+                manageCollectionSelect.innerHTML = '';
+                const sortedCollectionNames = Object.keys(collectionsData).sort();
+                for (const collectionName of sortedCollectionNames) {
+                    const option = document.createElement('option');
+                    option.value = collectionName;
+                    option.textContent = collectionName;
+                    productCollectionSelect.appendChild(option.cloneNode(true));
+                    bannerCollectionSelect.appendChild(option.cloneNode(true));
+                    removeProductCollectionSelect.appendChild(option.cloneNode(true));
+                    manageCollectionSelect.appendChild(option.cloneNode(true));
+                }
+            }
+
+            adminLoginLink.addEventListener('click', e => { e.preventDefault(); adminModal.classList.remove('hidden'); });
+            closeModal.addEventListener('click', () => { adminModal.classList.add('hidden'); loginError.classList.add('hidden'); adminLoginForm.reset(); });
+            adminModal.addEventListener('click', e => { if (e.target === adminModal) { closeModal.click(); } });
+
+            adminLoginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+
+                if (username === '95583550' && password === 'Misbah&hamper#ML') {
+                    adminModal.classList.add('hidden');
+                    adminPanel.classList.remove('hidden');
+                    adminLoginForm.reset();
+                    loginError.classList.add('hidden');
+                    populateCollectionSelects();
+                    const firstCollection = Object.keys(collectionsData)[0];
+                    if(firstCollection) {
+                        populateProductsToRemoveSelect(firstCollection);
+                        populateProductsForManagement(firstCollection);
+                    }
+                } else {
+                    loginError.textContent = 'Invalid username or password.';
+                    loginError.classList.remove('hidden');
+                }
+            });
+
+            createCollectionForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const button = e.submitter;
+                button.disabled = true;
+                button.textContent = 'Creating...';
+
+                const collectionNameInput = document.getElementById('newCollectionName');
+                const collectionName = collectionNameInput.value.trim();
+                const bannerFile = document.getElementById('newCollectionBannerImage').files[0];
+
+                if (!collectionName || !bannerFile) {
+                    collectionErrorText.textContent = "Please provide a name and a banner image.";
+                    collectionErrorMessage.classList.remove('hidden');
+                    setTimeout(() => collectionErrorMessage.classList.add('hidden'), 4000);
+                    button.disabled = false;
+                    button.textContent = 'Create Collection';
+                    return;
+                }
+
+                if (collectionsData[collectionName]) {
+                    collectionErrorText.textContent = "A collection with this name already exists.";
+                    collectionErrorMessage.classList.remove('hidden');
+                    setTimeout(() => collectionErrorMessage.classList.add('hidden'), 4000);
+                    button.disabled = false;
+                    button.textContent = 'Create Collection';
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = async (event) => {
+                    const newCollection = {
+                        bannerImage: event.target.result,
+                        products: []
+                    };
+                    try {
+                        const collectionRef = doc(db, 'collections', collectionName);
+                        await setDoc(collectionRef, newCollection);
+                        createCollectionForm.reset();
+                        collectionSuccessMessage.classList.remove('hidden');
+                        setTimeout(() => collectionSuccessMessage.classList.add('hidden'), 4000);
+                    } catch (error) {
+                        console.error("Error creating collection:", error);
+                        collectionErrorText.textContent = "Failed to create collection. See console for details.";
+                        collectionErrorMessage.classList.remove('hidden');
+                        setTimeout(() => collectionErrorMessage.classList.add('hidden'), 4000);
+                    } finally {
+                        button.disabled = false;
+                        button.textContent = 'Create Collection';
+                    }
+                };
+                reader.readAsDataURL(bannerFile);
+            });
+            
+            addProductForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const collectionName = productCollectionSelect.value;
+                const productName = document.getElementById('productName').value;
+                const productPrice = document.getElementById('productPrice').value;
+                const productImageFile = document.getElementById('productImage').files[0];
+                const button = e.submitter;
+                button.disabled = true;
+                button.textContent = 'Adding...';
+
+                if (collectionName && productName && productPrice && productImageFile) {
+                    const reader = new FileReader();
+                    reader.onload = async function(event) {
+                        const newProduct = { name: productName, price: productPrice, imageUrl: event.target.result };
+                        const currentProducts = collectionsData[collectionName]?.products || [];
+                        const updatedProducts = [...currentProducts, newProduct];
+                        
+                        try {
+                            const collectionRef = doc(db, 'collections', collectionName);
+                            await updateDoc(collectionRef, { products: updatedProducts });
+                            
+                            addProductForm.reset();
+                            productSuccessMessage.classList.remove('hidden');
+                            setTimeout(() => productSuccessMessage.classList.add('hidden'), 4000);
+                        } catch (error) {
+                            console.error("Error adding product: ", error);
+                            alert("Failed to add product. See console for details.");
+                        } finally {
+                            button.disabled = false;
+                            button.textContent = 'Add Product';
+                        }
+                    };
+                    reader.readAsDataURL(productImageFile);
+                } else {
+                     button.disabled = false;
+                     button.textContent = 'Add Product';
+                }
+            });
+            
+            updateBannerForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const collectionName = bannerCollectionSelect.value;
+                const bannerImageFile = document.getElementById('collectionBannerImage').files[0];
+                const button = e.submitter;
+                button.disabled = true;
+                button.textContent = 'Updating...';
+
+                if (collectionName && bannerImageFile) {
+                    const reader = new FileReader();
+                    reader.onload = async function(event) {
+                        try {
+                            const collectionRef = doc(db, 'collections', collectionName);
+                            await updateDoc(collectionRef, { bannerImage: event.target.result });
+                            updateBannerForm.reset();
+                            bannerSuccessMessage.classList.remove('hidden');
+                            setTimeout(() => bannerSuccessMessage.classList.add('hidden'), 4000);
+                        } catch (error) {
+                            console.error("Error updating banner: ", error);
+                            alert("Failed to update banner. See console for details.");
+                        } finally {
+                             button.disabled = false;
+                            button.textContent = 'Update Banner';
+                        }
+                    };
+                    reader.readAsDataURL(bannerImageFile);
+                } else {
+                    button.disabled = false;
+                    button.textContent = 'Update Banner';
+                }
+            });
+
+            removeProductCollectionSelect.addEventListener('change', (e) => {
+                searchProductToRemoveInput.value = '';
+                populateProductsToRemoveSelect(e.target.value);
+            });
+
+            searchProductToRemoveInput.addEventListener('input', () => {
+                const collectionName = removeProductCollectionSelect.value;
+                populateProductsToRemoveSelect(collectionName, searchProductToRemoveInput.value);
+            });
+
+            removeProductForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const collectionName = removeProductCollectionSelect.value;
+                const productIndexToRemove = parseInt(productToRemoveSelect.value);
+                const button = e.submitter;
+
+                if (collectionName && !isNaN(productIndexToRemove)) {
+                    button.disabled = true;
+                    button.textContent = 'Removing...';
+                    const currentProducts = collectionsData[collectionName]?.products || [];
+                    const updatedProducts = currentProducts.filter((_, index) => index !== productIndexToRemove);
+                    
+                    try {
+                        const collectionRef = doc(db, 'collections', collectionName);
+                        await updateDoc(collectionRef, { products: updatedProducts });
+                        searchProductToRemoveInput.value = '';
+                        removeProductSuccessMessage.classList.remove('hidden');
+                        setTimeout(() => removeProductSuccessMessage.classList.add('hidden'), 4000);
+                    } catch (error) {
+                        console.error("Error removing product: ", error);
+                        alert("Failed to remove product. See console for details.");
+                    } finally {
+                        button.disabled = false;
+                        button.textContent = 'Remove Product';
+                    }
+                }
+            });
+            
+            // Manage/Edit Product Logic
+            manageCollectionSelect.addEventListener('change', (e) => {
+                searchProductToManageInput.value = '';
+                populateProductsForManagement(e.target.value);
+            });
+
+            searchProductToManageInput.addEventListener('input', (e) => {
+                populateProductsForManagement(manageCollectionSelect.value, e.target.value);
+            });
+
+            productListContainer.addEventListener('click', (e) => {
+                if (e.target.classList.contains('edit-product-btn')) {
+                    const collectionName = e.target.dataset.collection;
+                    const productIndex = parseInt(e.target.dataset.index);
+                    const product = collectionsData[collectionName].products[productIndex];
+
+                    document.getElementById('editProductCollectionName').value = collectionName;
+                    document.getElementById('editProductIndex').value = productIndex;
+                    document.getElementById('editProductName').value = product.name;
+                    document.getElementById('editProductPrice').value = product.price;
+                    document.getElementById('editProductImagePreview').src = product.imageUrl;
+                    document.getElementById('editProductImageFile').value = '';
+                    editProductModal.classList.remove('hidden');
+                }
+            });
+
+            closeEditModal.addEventListener('click', () => {
+                editProductModal.classList.add('hidden');
+            });
+
+            editProductForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const button = e.submitter;
+                button.disabled = true;
+                button.textContent = "Saving...";
+
+                const collectionName = document.getElementById('editProductCollectionName').value;
+                const productIndex = parseInt(document.getElementById('editProductIndex').value);
+                const newName = document.getElementById('editProductName').value;
+                const newPrice = document.getElementById('editProductPrice').value;
+                const newImageFile = document.getElementById('editProductImageFile').files[0];
+
+                const productsCopy = [...collectionsData[collectionName].products];
+                const productToUpdate = { ...productsCopy[productIndex] };
+                productToUpdate.name = newName;
+                productToUpdate.price = newPrice;
+
+                const updateFirestore = async (updatedProduct) => {
+                    productsCopy[productIndex] = updatedProduct;
+                    try {
+                        const collectionRef = doc(db, 'collections', collectionName);
+                        await updateDoc(collectionRef, { products: productsCopy });
+                        editProductSuccessMessage.classList.remove('hidden');
+                        setTimeout(() => editProductSuccessMessage.classList.add('hidden'), 4000);
+                        editProductModal.classList.add('hidden');
+                    } catch(error) {
+                        console.error("Error updating product:", error);
+                        alert("Failed to update product.");
+                    } finally {
+                        button.disabled = false;
+                        button.textContent = "Save Changes";
+                    }
+                };
+
+                if (newImageFile) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        productToUpdate.imageUrl = event.target.result;
+                        updateFirestore(productToUpdate);
+                    };
+                    reader.readAsDataURL(newImageFile);
+                } else {
+                    updateFirestore(productToUpdate);
+                }
+            });
+
+
+            resetDataButton.addEventListener('click', () => resetConfirmModal.classList.remove('hidden'));
+            cancelReset.addEventListener('click', () => resetConfirmModal.classList.add('hidden'));
+            confirmReset.addEventListener('click', async () => {
+                const button = confirmReset;
+                button.disabled = true;
+                button.textContent = 'Resetting...';
+                try {
+                    const collectionsSnapshot = await getDocs(collection(db, 'collections'));
+                    const deleteBatch = writeBatch(db);
+                    collectionsSnapshot.forEach(doc => deleteBatch.delete(doc.ref));
+                    await deleteBatch.commit();
+                    await initializeDefaultData();
+                } catch(error) {
+                    console.error("Error resetting data: ", error);
+                    alert("Failed to reset data. See console for details.");
+                } finally {
+                    resetConfirmModal.classList.add('hidden');
+                    button.disabled = false;
+                    button.textContent = 'Yes, Reset Data';
+                }
+            });
+
+            logoutButton.addEventListener('click', () => adminPanel.classList.add('hidden'));
+            
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({ behavior: 'smooth' });
+                     if (!mobileMenu.classList.contains('hidden')) mobileMenu.classList.add('hidden');
+                });
+            });
+
+            // --- Real-time Firestore Listener ---
+            const collectionsRef = collection(db, 'collections');
+            onSnapshot(collectionsRef, async (snapshot) => {
+                 // First-time setup: If the database is empty, populate it.
+                if (snapshot.empty) {
+                    console.log("Database is empty. Initializing with default data...");
+                    await initializeDefaultData();
+                    return; 
+                }
+
+                const newCollectionsData = {};
+                snapshot.forEach((doc) => {
+                    newCollectionsData[doc.id] = doc.data();
+                });
+                
+                collectionsData = newCollectionsData;
+                renderCollectionBanners();
+                
+                if (!adminPanel.classList.contains('hidden')) {
+                    const currentRemoveCollection = removeProductCollectionSelect.value;
+                    const currentSearchTerm = searchProductToRemoveInput.value;
+                    const currentManageCollection = manageCollectionSelect.value;
+                    const currentManageSearch = searchProductToManageInput.value;
+                    
+                    populateCollectionSelects();
+
+                    if(currentRemoveCollection) {
+                        removeProductCollectionSelect.value = currentRemoveCollection;
+                        populateProductsToRemoveSelect(currentRemoveCollection, currentSearchTerm);
+                    }
+                    if(currentManageCollection) {
+                        manageCollectionSelect.value = currentManageCollection;
+                        populateProductsForManagement(currentManageCollection, currentManageSearch);
+                    }
+                }
+            });
+        });
+
+        const defaultCollectionsData = { "For Him": { bannerImage: "https://images.unsplash.com/photo-1571395434521-5cc1c14f7759?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzNjE5OHwwfDF8c2VhcmNofDEyfHxnaWZ0JTIwZm9yJTIwbWVufGVufDB8fHx8MTY3ODg5ODg4NA&ixlib=rb-4.0.3&q=80&w=600", products: [ { name: "The Executive", price: "₹2,499", imageUrl: "https://images.unsplash.com/photo-1617192237372-9a72d7336ce0?q=80&w=1887&auto=format&fit=crop" }, { name: "Gourmet Gentleman", price: "₹2,699", imageUrl: "https://images.unsplash.com/photo-1559819423-7a7ce35359df?q=80&w=1887&auto=format&fit=crop" }, { name: "Adventure Kit", price: "₹2,199", imageUrl: "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?q=80&w=2070&auto=format&fit=crop" }, ] }, "For Her": { bannerImage: "https://images.unsplash.com/photo-1594035934090-09c313de1194?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzNjE5OHwwfDF8c2VhcmNofDV8fHNwYSUyMGdpZnQlMjBzZXR8ZW58MHx8fHwxNjc4ODk4OTI1&ixlibrb-4.0.3&q=80&w=600", products: [ { name: "Spa Day Retreat", price: "₹2,999", imageUrl: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?q=80&w=2070&auto=format&fit=crop" }, { name: "The Glamour Box", price: "₹3,499", imageUrl: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?q=80&w=2080&auto=format&fit=crop" }, { name: "Sweet Serenity", price: "₹2,799", imageUrl: "https://images.unsplash.com/photo-1620052298288-c4a45a3a25b8?q=80&w=1887&auto=format&fit=crop" }, ] }, "For Kids": { bannerImage: "https://images.unsplash.com/photo-1566576912317-15635208114f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzNjE5OHwwfDF8c2VhcmNofDEwfHxraWRzJTIwZ2lmdCUyMGJhc2tldHxlbnwwfHx8fDE2Nzg4OTg5NjY&ixlib=rb-4.0.3&q=80&w=600", products: [ { name: "Creative Explorer", price: "₹1,999", imageUrl: "https://images.unsplash.com/photo-1516627145408-4d538a7c206a?q=80&w=2070&auto=format&fit=crop" }, { name: "Candy Kingdom", price: "₹1,499", imageUrl: "https://images.unsplash.com/photo-1600719828790-a52da69866e4?q=80&w=1887&auto=format&fit=crop" }, { name: "Toy Trove", price: "₹2,299", imageUrl: "https://images.unsplash.com/photo-1560859252-e1644e590210?q=80&w=1964&auto=format&fit=crop" }, ] }, "Weddings": { bannerImage: "https://images.unsplash.com/photo-1526301828286-9856f68903a4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzNjE5OHwwfDF8c2VhcmNofDEzfHx3ZWRkaW5nJTIwZ2lmdHxlbnwwfHx8fDE2Nzg4OTkwMDQ&ixlib.rb-4.0.3&q=80&w=600", products: [ { name: "To The Happy Couple", price: "₹4,999", imageUrl: "https://images.unsplash.com/photo-1607994695034-7a7615039281?q=80&w=1887&auto=format&fit=crop" }, { name: "Celebration Basket", price: "₹5,999", imageUrl: "https://images.unsplash.com/photo-1594951445585-80f073b22b51?q=80&w=1887&auto=format&fit=crop" }, { name: "Mr. & Mrs. Essentials", price: "₹4,499", imageUrl: "https://images.unsplash.com/photo-1556911073-52527ac402b6?q=80&w=2070&auto=format&fit=crop" }, ] }, "Engagements": { bannerImage: "https://images.unsplash.com/photo-1612178532859-2c9c7b9a5c8c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzNjE5OHwwfDF8c2VhcmNofDR8fHJvbWFudGljJTIwZ2lmdHxlbnwwfHx8fDE2Nzg4OTkwMzg&ixlib.rb-4.0.3&q=80&w=600", products: [ { name: "The Proposal", price: "₹3,999", imageUrl: "https://images.unsplash.com/photo-1598214886343-059032734608?q=80&w=1935&auto=format&fit=crop" }, { name: "Future Mrs.", price: "₹3,499", imageUrl: "https://images.unsplash.com/photo-1620789218698-b6a67a07a53e?q=80&w=1887&auto=format&fit=crop" }, { name: "Love Story Starter", price: "₹3,199", imageUrl: "https://images.unsplash.com/photo-1531701553543-a3d8a77a3433?q=80&w=1887&auto=format&fit=crop" }, ] }, "All Occasions": { bannerImage: "https://images.unsplash.com/photo-1566081024363-3882a836ca4b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzNjE5OHwwfDF8c2VhcmNofDEwfHxnaWZ0JTIwaGFtcGVyfGVufDB8fHx8MTY3ODg5OTA2NQ&ixlib.rb-4.0.3&q=80&w=600", products: [ { name: "Classic Celebration", price: "₹2,199", imageUrl: "https://images.unsplash.com/photo-1602491595018-b0a23dc86968?q=80&w=1887&auto=format&fit=crop" }, { name: "Thank You Kindly", price: "₹1,899", imageUrl: "https://images.unsplash.com/photo-1593101982592-54c38221655e?q=80&w=1887&auto=format&fit=crop" }, { name: "Birthday Surprise", price: "₹2,499", imageUrl: "https://images.unsplash.com/photo-1576836165620-a8328f526017?q=80&w=1964&auto=format&fit=crop" }, ] }, "Candles": { bannerImage: "https://images.unsplash.com/photo-1594212699903-ec8a64e1f9ee?q=80&w=1887&auto=format&fit=crop", products: [ { name: "Serene Lavender", price: "₹1,299", imageUrl: "https://images.unsplash.com/photo-1600857544256-6254420655ec?q=80&w=1887&auto=format&fit=crop" }, { name: "Vanilla Bean Dream", price: "₹1,199", imageUrl: "https://images.unsplash.com/photo-1614294237583-1459a688d0b2?q=80&w=1887&auto=format&fit=crop" }, { name: "Sandalwood Musk", price: "₹1,499", imageUrl: "https://images.unsplash.com/photo-1617805232938-00278f24025d?q=80&w=1887&auto=format&fit=crop" }, ] } };
+
+        async function initializeDefaultData() {
+            console.log("Initializing database with default data...");
+            const batch = writeBatch(db);
+            for (const collectionName in defaultCollectionsData) {
+                const collectionRef = doc(db, 'collections', collectionName);
+                batch.set(collectionRef, defaultCollectionsData[collectionName]);
+            }
+            await batch.commit();
+            console.log("Default data has been written to the database.");
+        }
+    </script>
+
+</body>
+</html>
+
