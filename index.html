@@ -88,9 +88,72 @@
             border-bottom-color: #1f2937; /* gray-800 */
             font-weight: 600;
         }
+        .code-block {
+            background-color: #f3f4f6;
+            padding: 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            font-size: 12px;
+            margin-top: 4px;
+        }
     </style>
 </head>
 <body class="text-gray-800">
+
+    <!-- Firebase Security Rules Alert -->
+    <div id="firestore-rules-alert" class="hidden fixed top-0 left-0 right-0 bg-yellow-100 border-b-2 border-yellow-500 text-yellow-900 p-4 z-[101]">
+        <div class="container mx-auto">
+            <h3 class="font-bold text-lg mb-2">Action Required: Update Firebase Security Rules</h3>
+            <p class="text-sm">Your website is connected, but the database security rules are blocking access. This is preventing products from loading and images from being uploaded. To fix this for development:</p>
+            <ol class="list-decimal list-inside text-sm mt-2 space-y-2">
+                <li>
+                    Go to your <a href="https://console.firebase.google.com/u/0/project/aureluxe-e4622/firestore/rules" target="_blank" class="underline font-semibold">Firestore Rules</a>, and replace everything with:
+                    <div class="code-block">rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}</div>
+                </li>
+                 <li>
+                    Go to your <a href="https://console.firebase.google.com/u/0/project/aureluxe-e4622/storage/rules" target="_blank" class="underline font-semibold">Storage Rules</a>, and replace everything with:
+                    <div class="code-block">rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read, write: if true;
+    }
+  }
+}</div>
+                </li>
+            </ol>
+             <p class="text-sm mt-2 font-semibold">Click "Publish" after pasting the rules in each section. Your site should then work correctly.</p>
+        </div>
+    </div>
+    
+    <!-- Firebase Auth Alert -->
+     <div id="auth-setup-alert" class="hidden fixed top-0 left-0 right-0 bg-blue-100 border-b-2 border-blue-500 text-blue-900 p-4 z-[101]">
+        <div class="container mx-auto">
+            <h3 class="font-bold text-lg mb-2">Action Required: Enable Email Sign-In</h3>
+            <p class="text-sm">Your Firebase project is connected, but the email/password sign-in method is not enabled. This is the final step to get user accounts working.</p>
+            <ol class="list-decimal list-inside text-sm mt-2 space-y-2">
+                <li>
+                    Go to your <a href="https://console.firebase.google.com/u/0/project/aureluxe-e4622/authentication/providers" target="_blank" class="underline font-semibold">Firebase Authentication Providers</a> page.
+                </li>
+                <li>
+                    Click on "Email/Password" from the list of providers.
+                </li>
+                 <li>
+                    Click the "Enable" toggle switch and then click "Save".
+                </li>
+            </ol>
+             <p class="text-sm mt-2 font-semibold">Once you enable it, refresh this page. The sign-up and login will work immediately.</p>
+        </div>
+    </div>
+
 
     <!-- App Container -->
     <div id="app" class="w-full">
@@ -480,36 +543,47 @@
         <!-- Toast message will be injected by JS -->
     </div>
 
-    <!-- Firebase SDK -->
-    <script type="module">
-        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-        const firebaseConfig = {
-            apiKey: "AIzaSyCkf7HhjB6hvFgwpYSaeQEZttun7I4G7ds",
-            authDomain: "aureluxe-e4622.firebaseapp.com",
-            projectId: "aureluxe-e4622",
-            storageBucket: "aureluxe-e4622.appspot.com",
-            messagingSenderId: "92928988705",
-            appId: "1:92928988705:web:69541cd876606c67aa7560",
-            measurementId: "G-XMCWQ4WC56"
-        };
+    <!-- Firebase SDK (Compat version for broader compatibility) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 
-        // Import the functions you need from the SDKs
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, addDoc, doc, setDoc, getDocs, deleteDoc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        
-        let db, storage, auth;
-        let isFirebaseInitialized = false;
 
-        document.addEventListener('DOMContentLoaded', function() {
+    <script>
+        function main() {
+            // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+            const firebaseConfig = {
+                apiKey: "AIzaSyCkf7HhjB6hvFgwpYSaeQEZttun7I4G7ds",
+                authDomain: "aureluxe-e4622.firebaseapp.com",
+                projectId: "aureluxe-e4622",
+                storageBucket: "aureluxe-e4622.appspot.com",
+                messagingSenderId: "92928988705",
+                appId: "1:92928988705:web:69541cd876606c67aa7560",
+                measurementId: "G-XMCWQ4WC56"
+            };
             
+            let db, storage, auth;
+            let isFirebaseInitialized = false;
+
+            try {
+                firebase.initializeApp(firebaseConfig);
+                db = firebase.firestore();
+                storage = firebase.storage();
+                auth = firebase.auth();
+                isFirebaseInitialized = true;
+            } catch (error) {
+                console.error("Firebase initialization failed:", error.message);
+            }
+
             // --- DOM Elements ---
             const body = document.body;
             const productGrid = document.getElementById('product-grid');
             const productCountEl = document.getElementById('product-count');
             const toast = document.getElementById('toast-notification');
             const loadingIndicator = document.getElementById('loading-indicator');
+            const firebaseAlert = document.getElementById('firestore-rules-alert');
+            const authAlert = document.getElementById('auth-setup-alert');
             
             // Cart elements
             const cartButton = document.getElementById('cart-button');
@@ -599,27 +673,6 @@
                     toast.classList.add('opacity-0', 'translate-y-20');
                 }, 3000);
             }
-
-            // --- Firebase Initialization ---
-            try {
-                if (!firebaseConfig.apiKey || firebaseConfig.apiKey.startsWith("YOUR_")) {
-                    throw new Error("Firebase config is missing or incomplete.");
-                }
-                const app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                storage = getStorage(app);
-                auth = getAuth(app);
-                
-                listenForProducts();
-                setupAuthListener();
-                isFirebaseInitialized = true;
-
-            } catch (error) {
-                console.error("Firebase initialization failed:", error.message);
-                const firebaseAlert = document.getElementById('firebase-alert');
-                if(firebaseAlert) firebaseAlert.classList.remove('hidden');
-                initializeDemoMode();
-            }
             
             // --- STATE MANAGEMENT ---
             let products = [];
@@ -628,6 +681,13 @@
             let uploadedFiles = [];
             let currentUser = null;
             let userAddresses = [];
+
+            if (isFirebaseInitialized) {
+                listenForProducts();
+                setupAuthListener();
+            } else {
+                initializeDemoMode();
+            }
             
             // --- DEMO DATA (Fallback) ---
             const demoProducts = [
@@ -646,14 +706,18 @@
 
             // --- FETCH & LISTEN FOR DATA ---
             function listenForProducts() {
-                const productsCollection = collection(db, "products");
-                onSnapshot(productsCollection, (snapshot) => {
+                db.collection("products").onSnapshot((snapshot) => {
                     products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                     if(loadingIndicator) loadingIndicator.classList.add('hidden');
                     renderProducts();
                 }, (error) => {
                     console.error("Error fetching products:", error);
-                    if(loadingIndicator) loadingIndicator.innerHTML = `<p class="text-red-500">Could not load products. Ensure Firestore is enabled and rules are set.</p>`;
+                    if (error.code === 'permission-denied') {
+                        if(loadingIndicator) loadingIndicator.innerHTML = `<p class="text-red-500 col-span-full">Database permission error. Please update your Firestore security rules.</p>`;
+                         if(firebaseAlert) firebaseAlert.classList.remove('hidden');
+                    } else {
+                         if(loadingIndicator) loadingIndicator.innerHTML = `<p class="text-red-500">Could not load products. Ensure Firestore is enabled.</p>`;
+                    }
                 });
             }
 
@@ -666,15 +730,13 @@
                 if (addressesUnsubscribe) addressesUnsubscribe();
                 
                 // Listen for orders
-                const ordersQuery = query(collection(db, `users/${userId}/orders`), orderBy('createdAt', 'desc'));
-                ordersUnsubscribe = onSnapshot(ordersQuery, snapshot => {
+                ordersUnsubscribe = db.collection(`users/${userId}/orders`).orderBy('createdAt', 'desc').onSnapshot(snapshot => {
                     const orders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                     renderOrderHistory(orders);
                 });
 
                 // Listen for addresses
-                const addressesQuery = query(collection(db, `users/${userId}/addresses`), orderBy('createdAt', 'desc'));
-                addressesUnsubscribe = onSnapshot(addressesQuery, snapshot => {
+                addressesUnsubscribe = db.collection(`users/${userId}/addresses`).orderBy('createdAt', 'desc').onSnapshot(snapshot => {
                     userAddresses = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                     renderSavedAddresses(userAddresses);
                 });
@@ -682,7 +744,7 @@
 
             // --- AUTHENTICATION ---
             function setupAuthListener() {
-                onAuthStateChanged(auth, user => {
+                auth.onAuthStateChanged(user => {
                     if (user) {
                         currentUser = user;
                         listenForUserData(user.uid);
@@ -842,12 +904,12 @@
                         <div class="border p-2 rounded-md bg-gray-50 text-sm flex justify-between items-start">
                            <div>
                              <p class="font-semibold">${addr.fullName}</p>
-                             <p class="text-xs text-gray-600">${addr.address}, ${addr.city}, ${addr.state} - ${addr.pincode}</p>
+                             <p class="text-xs text-gray-600">${addr.address}</p>
                            </div>
                            <button data-id="${addr.id}" class="delete-address-btn text-red-500 text-xs hover:underline">Delete</button>
                         </div>
                     `;
-                    savedAddressSelect.innerHTML += `<option value="${addr.id}">${addr.fullName} - ${addr.city}</option>`;
+                    savedAddressSelect.innerHTML += `<option value="${addr.id}">${addr.fullName} - ${addr.address.substring(0,20)}...</option>`;
                  });
             }
             
@@ -1128,14 +1190,14 @@
 
                 const orderData = {
                     id: orderId,
-                    createdAt: serverTimestamp(),
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                     items: orderItems,
                     total: orderTotal,
                     shippingAddress: currentCheckoutAddress
                 };
                 
                 try {
-                    await addDoc(collection(db, `users/${currentUser.uid}/orders`), orderData);
+                    await db.collection(`users/${currentUser.uid}/orders`).add(orderData);
                     paymentStep.classList.add('hidden');
                     confirmationStep.classList.remove('hidden');
                     checkoutTitle.textContent = "Order Confirmed";
@@ -1180,13 +1242,19 @@
                 e.preventDefault();
                 const email = loginForm['login-email'].value;
                 const password = loginForm['login-password'].value;
-                signInWithEmailAndPassword(auth, email, password)
+                auth.signInWithEmailAndPassword(email, password)
                     .then(userCredential => {
                         closeModal(authModal, authModalContent);
                         showToast('Logged in successfully!');
                     })
                     .catch(error => {
-                        loginAuthError.textContent = error.message;
+                        if (error.code === 'auth/operation-not-allowed' || error.code === 'auth/missing-email-synced-data') {
+                            if(authAlert) authAlert.classList.remove('hidden');
+                            window.scrollTo(0,0);
+                            loginAuthError.textContent = "Sign-in method not enabled in Firebase.";
+                        } else {
+                            loginAuthError.textContent = error.message;
+                        }
                         loginAuthError.classList.remove('hidden');
                     });
             });
@@ -1195,19 +1263,25 @@
                 e.preventDefault();
                 const email = signupForm['signup-email'].value;
                 const password = signupForm['signup-password'].value;
-                createUserWithEmailAndPassword(auth, email, password)
+                auth.createUserWithEmailAndPassword(email, password)
                     .then(userCredential => {
                         closeModal(authModal, authModalContent);
                         showToast('Account created successfully!');
                     })
                     .catch(error => {
-                        signupAuthError.textContent = error.message;
+                        if (error.code === 'auth/operation-not-allowed') {
+                            if(authAlert) authAlert.classList.remove('hidden');
+                            window.scrollTo(0,0);
+                            signupAuthError.textContent = "Sign-up method not enabled in Firebase.";
+                        } else {
+                            signupAuthError.textContent = error.message;
+                        }
                         signupAuthError.classList.remove('hidden');
                     });
             });
 
             logoutBtn.addEventListener('click', () => {
-                signOut(auth).then(() => {
+                auth.signOut().then(() => {
                     closePanels();
                     showToast('You have been logged out.');
                 });
@@ -1218,10 +1292,10 @@
                 const newAddress = {
                     fullName: e.target.querySelector('[placeholder="Full Name"]').value,
                     address: e.target.querySelector('[placeholder="Full Address"]').value,
-                    createdAt: serverTimestamp(),
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                 };
                 try {
-                    await addDoc(collection(db, `users/${currentUser.uid}/addresses`), newAddress);
+                    await db.collection(`users/${currentUser.uid}/addresses`).add(newAddress);
                     showToast('Address saved!');
                     addAddressForm.reset();
                 } catch(error) {
@@ -1235,7 +1309,7 @@
                     const addressId = e.target.dataset.id;
                     if (confirm('Are you sure you want to delete this address?')) {
                         try {
-                            await deleteDoc(doc(db, `users/${currentUser.uid}/addresses`, addressId));
+                            await db.doc(`users/${currentUser.uid}/addresses/${addressId}`).delete();
                             showToast('Address deleted.');
                         } catch(error) {
                             console.error("Error deleting address:", error);
@@ -1320,11 +1394,10 @@
                     <span>Uploading...</span>`;
 
                 try {
-                    const productsCollection = collection(db, "products");
                     const imageUrls = await Promise.all(
                         uploadedFiles.map(file => {
-                            const storageRef = ref(storage, `products/${Date.now()}-${file.name}`);
-                            return uploadBytes(storageRef, file).then(snapshot => getDownloadURL(snapshot.ref));
+                            const storageRef = storage.ref(`products/${Date.now()}-${file.name}`);
+                            return storageRef.put(file).then(() => storageRef.getDownloadURL());
                         })
                     );
 
@@ -1336,7 +1409,7 @@
                         imageUrls: imageUrls
                     };
 
-                    await addDoc(productsCollection, newProduct);
+                    await db.collection("products").add(newProduct);
                     
                     showToast("Product added successfully!");
                     addProductForm.reset();
@@ -1345,7 +1418,13 @@
 
                 } catch (error) {
                     console.error("Error adding product:", error);
-                    showToast("Failed to add product. See console for details.", true);
+                    if (error.code === 'storage/unauthorized' || error.code === 'storage/retry-limit-exceeded') {
+                         if(firebaseAlert) firebaseAlert.classList.remove('hidden');
+                         showToast("Image upload failed. Please update Storage rules.", true);
+                         window.scrollTo(0,0);
+                    } else {
+                        showToast("Failed to add product. See console for details.", true);
+                    }
                 } finally {
                      addProductSubmitBtn.disabled = false;
                      addProductSubmitBtn.innerHTML = `<span>Add Product</span>`;
@@ -1362,7 +1441,7 @@
             cartButton.addEventListener('click', () => { renderCart(); openPanel(cartPanel); });
             closeCartPanelBtn.addEventListener('click', closePanels);
             wishlistButton.addEventListener('click', () => { renderWishlist(); openPanel(wishlistPanel); });
-            closeWishlistPanelBtn.addEventListener('click', closePanels);
+            closeProfilePanelBtn.addEventListener('click', closePanels);
             mobileMenuButton.addEventListener('click', () => mobileMenu.classList.toggle('-translate-x-full'));
             filterBtn.addEventListener('click', () => showToast('Filter feature coming soon!'));
             sortBtn.addEventListener('click', () => showToast('Sort feature coming soon!'));
@@ -1371,7 +1450,10 @@
             // --- INITIAL RENDER ---
             updateCartCount();
             updateWishlistCount();
-        });
+        }
+
+        // Run the main function after the DOM is ready
+        main();
     </script>
 </body>
 </html>
