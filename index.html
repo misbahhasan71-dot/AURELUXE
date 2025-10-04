@@ -71,6 +71,18 @@
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
+        .image-preview-item {
+            position: relative;
+        }
+        .remove-image-btn {
+            position: absolute;
+            top: -0.5rem;
+            right: -0.5rem;
+            background-color: white;
+            border-radius: 9999px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            cursor: pointer;
+        }
     </style>
 </head>
 <body class="text-gray-800">
@@ -188,6 +200,16 @@
 
             <!-- Product Grid -->
             <div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+                <!-- Loading Skeleton -->
+                <div id="loading-indicator" class="col-span-full flex justify-center items-center py-16">
+                    <div class="text-center">
+                        <svg class="animate-spin h-8 w-8 text-gray-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <p class="mt-2 text-gray-500">Loading Products...</p>
+                    </div>
+                </div>
                 <!-- Product cards will be injected here by JavaScript -->
             </div>
 
@@ -235,7 +257,7 @@
                     </div>
                 </div>
                 <div class="border-t mt-12 pt-8 flex flex-col sm:flex-row justify-between items-center text-sm text-gray-500">
-                    <p>&copy; 2025 AURELUXE. All Rights Reserved.</p>
+                    <button id="admin-access-btn" class="hover:underline">&copy; 2025 AURELUXE. All Rights Reserved.</button>
                     <div class="flex space-x-4 mt-4 sm:mt-0">
                         <!-- Social Icons could go here -->
                     </div>
@@ -334,100 +356,87 @@
             </div>
         </div>
     </div>
+
+    <!-- Admin Login Modal -->
+    <div id="admin-login-modal" class="modal-overlay fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-[90] hidden opacity-0">
+        <div id="admin-login-content" class="modal-content bg-white rounded-lg w-full max-w-sm transform scale-95 p-6">
+            <h2 class="text-2xl font-serif font-bold text-center mb-4">Admin Access</h2>
+            <form id="admin-login-form">
+                <div class="space-y-4">
+                    <input id="admin-username" type="text" placeholder="Username" required class="w-full border-gray-300 rounded-md p-2 text-sm">
+                    <input id="admin-password" type="password" placeholder="Password" required class="w-full border-gray-300 rounded-md p-2 text-sm">
+                    <p id="login-error" class="text-red-500 text-sm hidden">Invalid credentials. Please try again.</p>
+                    <button type="submit" class="w-full bg-gray-900 text-white py-2.5 rounded-md hover:bg-gray-700 transition font-semibold">Login</button>
+                    <button type="button" id="cancel-login-btn" class="w-full bg-gray-200 text-gray-800 py-2.5 rounded-md hover:bg-gray-300 transition font-semibold">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="admin-panel" class="side-panel fixed top-0 right-0 h-full w-full max-w-lg bg-gray-50 shadow-lg z-[70] transform translate-x-full flex flex-col">
+        <div class="flex items-center justify-between p-4 border-b bg-white">
+            <h2 class="text-xl font-serif font-semibold">Admin Panel</h2>
+            <button id="close-admin-panel" class="text-gray-600 hover:text-gray-900">
+                 <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+        </div>
+        <div class="flex-grow p-4 overflow-y-auto">
+            <h3 class="font-semibold text-lg mb-4 border-b pb-2">Add New Product</h3>
+            <form id="add-product-form" class="space-y-4">
+                <input type="text" id="product-name" placeholder="Product Name" required class="w-full border-gray-300 rounded-md p-2 text-sm">
+                <textarea id="product-description" placeholder="Product Description" required rows="4" class="w-full border-gray-300 rounded-md p-2 text-sm"></textarea>
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="number" id="product-original-price" placeholder="Original Price (₹)" required class="w-full border-gray-300 rounded-md p-2 text-sm">
+                    <input type="number" id="product-sale-price" placeholder="Sale Price (₹)" required class="w-full border-gray-300 rounded-md p-2 text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Product Images</label>
+                    <input type="file" id="product-images" multiple accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gray-200 file:text-gray-700 hover:file:bg-gray-300">
+                    <div id="image-previews" class="mt-4 flex flex-wrap gap-4"></div>
+                </div>
+                <button type="submit" id="add-product-submit-btn" class="w-full bg-blue-600 text-white py-3 rounded-md hover:bg-blue-700 transition font-semibold flex items-center justify-center">
+                    <span>Add Product</span>
+                </button>
+            </form>
+        </div>
+    </div>
     
     <!-- Toast Notification -->
-    <div id="toast-notification" class="fixed bottom-5 right-5 bg-gray-900 text-white py-3 px-5 rounded-lg shadow-lg transform translate-y-20 opacity-0 z-[80]">
+    <div id="toast-notification" class="fixed bottom-5 right-5 bg-gray-900 text-white py-3 px-5 rounded-lg shadow-lg transform translate-y-20 opacity-0 z-[100]">
         <!-- Toast message will be injected by JS -->
     </div>
 
+    <!-- Firebase SDK -->
+    <script type="module">
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        const firebaseConfig = {
+            apiKey: "AIzaSyCkf7HhjB6hvFgwpYSaeQEZttun7I4G7ds",
+            authDomain: "aureluxe-e4622.firebaseapp.com",
+            projectId: "aureluxe-e4622",
+            storageBucket: "aureluxe-e4622.appspot.com", // Corrected from .firebasestorage.app
+            messagingSenderId: "92928988705",
+            appId: "1:92928988705:web:69541cd876606c67aa7560",
+            measurementId: "G-XMCWQ4WC56"
+        };
 
-    <script>
+        // Import the functions you need from the SDKs
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getFirestore, collection, onSnapshot, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        
+        let db, storage, auth;
+        let isFirebaseInitialized = false;
+
         document.addEventListener('DOMContentLoaded', function() {
-            // --- STATE MANAGEMENT ---
-            let cart = []; // Array of objects: { id: productId, quantity: number }
-            let wishlist = []; // Array of product IDs
-
-            // --- Product Data ---
-            const products = [
-                {
-                    id: 1,
-                    name: "The Viceroy Linen Shirt",
-                    description: "Crafted from premium Irish linen, this shirt offers unparalleled breathability and a relaxed, sophisticated drape. Perfect for warm-weather occasions, its classic cut ensures timeless style.",
-                    originalPrice: 3999,
-                    salePrice: 2399,
-                    image1: "https://images.pexels.com/photos/1043474/pexels-photo-1043474.jpeg?auto=compress&cs=tinysrgb&w=800",
-                    image2: "https://images.pexels.com/photos/3755706/pexels-photo-3755706.jpeg?auto=compress&cs=tinysrgb&w=800",
-                },
-                {
-                    id: 2,
-                    name: "Ascot Paisley Pocket Square",
-                    description: "A pure silk pocket square featuring an intricate paisley pattern. Add a dash of personality and refined charm to any blazer or suit jacket.",
-                    originalPrice: 1499,
-                    salePrice: 899,
-                    image1: "https://images.pexels.com/photos/17693836/pexels-photo-17693836/free-photo-of-close-up-of-a-man-in-a-suit-with-a-pocket-square.jpeg?auto=compress&cs=tinysrgb&w=800",
-                    image2: "https://images.pexels.com/photos/6626903/pexels-photo-6626903.jpeg?auto=compress&cs=tinysrgb&w=800",
-                },
-                {
-                    id: 3,
-                    name: "Regent Leather Bi-Fold Wallet",
-                    description: "Hand-stitched from full-grain leather, this wallet develops a rich patina over time. Features six card slots and a full-length bill compartment.",
-                    originalPrice: 2999,
-                    salePrice: 1799,
-                    image1: "https://images.pexels.com/photos/5795640/pexels-photo-5795640.jpeg?auto=compress&cs=tinysrgb&w=800",
-                    image2: "https://images.pexels.com/photos/11993478/pexels-photo-11993478.jpeg?auto=compress&cs=tinysrgb&w=800",
-                },
-                {
-                    id: 4,
-                    name: "Kensington Wool Trousers",
-                    description: "Tailored from fine merino wool, these trousers offer a sharp silhouette with a comfortable fit. A versatile staple for both business and formal events.",
-                    originalPrice: 4999,
-                    salePrice: 2999,
-                    image1: "https://images.pexels.com/photos/899321/pexels-photo-899321.jpeg?auto=compress&cs=tinysrgb&w=800",
-                    image2: "https://images.pexels.com/photos/208052/pexels-photo-208052.jpeg?auto=compress&cs=tinysrgb&w=800",
-                },
-                {
-                    id: 5,
-                    name: "Savile Row Checkered Blazer",
-                    description: "A modern take on a classic pattern. This half-canvassed blazer is made from a wool-silk blend for a lightweight feel and a flattering drape.",
-                    originalPrice: 9999,
-                    salePrice: 5999,
-                    image1: "https://images.pexels.com/photos/3779323/pexels-photo-3779323.jpeg?auto=compress&cs=tinysrgb&w=800",
-                    image2: "https://images.pexels.com/photos/3779322/pexels-photo-3779322.jpeg?auto=compress&cs=tinysrgb&w=800",
-                },
-                {
-                    id: 6,
-                    name: "Oxford Leather Loafers",
-                    description: "Constructed with a Blake stitch for flexibility and durability, these calfskin leather loafers are the epitome of slip-on elegance.",
-                    originalPrice: 6999,
-                    salePrice: 4199,
-                    image1: "https://images.pexels.com/photos/267301/pexels-photo-267301.jpeg?auto=compress&cs=tinysrgb&w=800",
-                    image2: "https://images.pexels.com/photos/4252950/pexels-photo-4252950.jpeg?auto=compress&cs=tinysrgb&w=800",
-                },
-                {
-                    id: 7,
-                    name: "Monogrammed Silk Tie",
-                    description: "Woven from 100% mulberry silk, this tie features a subtle geometric monogram pattern, offering a touch of understated luxury.",
-                    originalPrice: 1999,
-                    salePrice: 1199,
-                    image1: "https://images.pexels.com/photos/159497/school-uniform-school-uniforms-school-tie-159497.jpeg?auto=compress&cs=tinysrgb&w=800",
-                    image2: "https://images.pexels.com/photos/3768864/pexels-photo-3768864.jpeg?auto=compress&cs=tinysrgb&w=800",
-                },
-                {
-                    id: 8,
-                    name: "Heritage Cotton Chinos",
-                    description: "Our signature chinos are made from soft, durable brushed cotton with a hint of stretch for comfort. A wardrobe essential for any discerning gentleman.",
-                    originalPrice: 3499,
-                    salePrice: 2099,
-                    image1: "https://images.pexels.com/photos/1598507/pexels-photo-1598507.jpeg?auto=compress&cs=tinysrgb&w=800",
-                    image2: "https://images.pexels.com/photos/2249252/pexels-photo-2249252.jpeg?auto=compress&cs=tinysrgb&w=800",
-                }
-            ];
-
+            
             // --- DOM Elements ---
             const body = document.body;
             const productGrid = document.getElementById('product-grid');
             const productCountEl = document.getElementById('product-count');
             const toast = document.getElementById('toast-notification');
+            const loadingIndicator = document.getElementById('loading-indicator');
             
             // Cart elements
             const cartButton = document.getElementById('cart-button');
@@ -463,6 +472,20 @@
             const orderIdEl = document.getElementById('order-id');
             const qrCodeContainer = document.getElementById('qrcode');
             let qrCodeInstance = null;
+
+            // Admin elements
+            const adminAccessBtn = document.getElementById('admin-access-btn');
+            const adminLoginModal = document.getElementById('admin-login-modal');
+            const adminLoginContent = document.getElementById('admin-login-content');
+            const adminLoginForm = document.getElementById('admin-login-form');
+            const cancelLoginBtn = document.getElementById('cancel-login-btn');
+            const loginError = document.getElementById('login-error');
+            const adminPanel = document.getElementById('admin-panel');
+            const closeAdminPanel = document.getElementById('close-admin-panel');
+            const addProductForm = document.getElementById('add-product-form');
+            const imagePreviewsContainer = document.getElementById('image-previews');
+            const productImagesInput = document.getElementById('product-images');
+            const addProductSubmitBtn = document.getElementById('add-product-submit-btn');
             
             // Other buttons
             const mobileMenu = document.getElementById('mobile-menu');
@@ -471,6 +494,75 @@
             const sortBtn = document.getElementById('sort-btn');
             const profileButton = document.getElementById('profile-button');
             const panelOverlay = document.getElementById('panel-overlay');
+
+             // --- UI & STATE HANDLER FUNCTIONS (showToast is needed early) ---
+            function showToast(message, isError = false) {
+                toast.textContent = message;
+                toast.classList.remove('bg-gray-900', 'bg-red-600');
+                toast.classList.add(isError ? 'bg-red-600' : 'bg-gray-900');
+                toast.classList.remove('opacity-0', 'translate-y-20');
+                setTimeout(() => {
+                    toast.classList.add('opacity-0', 'translate-y-20');
+                }, 3000);
+            }
+
+            // --- Firebase Initialization ---
+            try {
+                if (!firebaseConfig.apiKey || firebaseConfig.apiKey.startsWith("YOUR_")) {
+                    throw new Error("Firebase config is missing or incomplete.");
+                }
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                storage = getStorage(app);
+                auth = getAuth(app);
+                
+                signInAnonymously(auth).catch((error) => {
+                    console.error("Anonymous sign-in failed:", error);
+                });
+
+                listenForProducts();
+                isFirebaseInitialized = true;
+
+            } catch (error) {
+                console.error("Firebase initialization failed:", error.message);
+                const firebaseAlert = document.getElementById('firebase-alert');
+                if(firebaseAlert) firebaseAlert.classList.remove('hidden');
+                initializeDemoMode();
+            }
+            
+            // --- STATE MANAGEMENT ---
+            let products = [];
+            let cart = []; // Array of objects: { id: productId, quantity: number }
+            let wishlist = []; // Array of product IDs
+            let uploadedFiles = [];
+            
+            // --- DEMO DATA (Fallback) ---
+            const demoProducts = [
+                { id: 'demo1', name: "The Viceroy Linen Shirt (Demo)", description: "Demo description for the linen shirt.", originalPrice: 3999, salePrice: 2399, imageUrls: ["https://images.pexels.com/photos/1043474/pexels-photo-1043474.jpeg?auto=compress&cs=tinysrgb&w=800", "https://images.pexels.com/photos/3755706/pexels-photo-3755706.jpeg?auto=compress&cs=tinysrgb&w=800"] },
+                { id: 'demo2', name: "Regent Leather Wallet (Demo)", description: "Demo description for the leather wallet.", originalPrice: 2999, salePrice: 1799, imageUrls: ["https://images.pexels.com/photos/5795640/pexels-photo-5795640.jpeg?auto=compress&cs=tinysrgb&w=800", "https://images.pexels.com/photos/11993478/pexels-photo-11993478.jpeg?auto=compress&cs=tinysrgb&w=800"] },
+                { id: 'demo3', name: "Kensington Trousers (Demo)", description: "Demo description for wool trousers.", originalPrice: 4999, salePrice: 2999, imageUrls: ["https://images.pexels.com/photos/899321/pexels-photo-899321.jpeg?auto=compress&cs=tinysrgb&w=800", "https://images.pexels.com/photos/208052/pexels-photo-208052.jpeg?auto=compress&cs=tinysrgb&w=800"] },
+                { id: 'demo4', name: "Oxford Leather Loafers (Demo)", description: "Demo description for leather loafers.", originalPrice: 6999, salePrice: 4199, imageUrls: ["https://images.pexels.com/photos/267301/pexels-photo-267301.jpeg?auto=compress&cs=tinysrgb&w=800", "https://images.pexels.com/photos/4252950/pexels-photo-4252950.jpeg?auto=compress&cs=tinysrgb&w=800"] }
+            ];
+
+            function initializeDemoMode() {
+                showToast("Running in Demo Mode. Connect Firebase to enable Admin features.");
+                products = demoProducts;
+                if(loadingIndicator) loadingIndicator.classList.add('hidden');
+                renderProducts();
+            }
+
+            // --- FETCH PRODUCTS from Firestore ---
+            function listenForProducts() {
+                const productsCollection = collection(db, "products");
+                onSnapshot(productsCollection, (snapshot) => {
+                    products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    if(loadingIndicator) loadingIndicator.classList.add('hidden');
+                    renderProducts();
+                }, (error) => {
+                    console.error("Error fetching products:", error);
+                    if(loadingIndicator) loadingIndicator.innerHTML = `<p class="text-red-500">Could not load products. Ensure Firestore is enabled and rules are set.</p>`;
+                });
+            }
 
             // --- RENDER FUNCTIONS ---
             
@@ -485,11 +577,12 @@
                 let subtotal = 0;
                 cart.forEach(cartItem => {
                     const product = products.find(p => p.id === cartItem.id);
+                    if (!product) return;
                     subtotal += product.salePrice * cartItem.quantity;
                     
                     cartItemsContainer.innerHTML += `
                         <div class="flex items-start gap-4 mb-4" data-product-id="${product.id}">
-                            <img src="${product.image1}" alt="${product.name}" class="w-20 h-24 object-cover rounded-md">
+                            <img src="${product.imageUrls[0]}" alt="${product.name}" class="w-20 h-24 object-cover rounded-md">
                             <div class="flex-grow">
                                 <h3 class="font-semibold text-sm">${product.name}</h3>
                                 <p class="text-gray-500 text-sm">Quantity: ${cartItem.quantity}</p>
@@ -518,9 +611,10 @@
 
                 wishlist.forEach(productId => {
                     const product = products.find(p => p.id === productId);
+                     if (!product) return;
                     wishlistItemsContainer.innerHTML += `
                         <div class="flex items-start gap-4 mb-4" data-product-id="${product.id}">
-                            <img src="${product.image1}" alt="${product.name}" class="w-20 h-24 object-cover rounded-md">
+                            <img src="${product.imageUrls[0]}" alt="${product.name}" class="w-20 h-24 object-cover rounded-md">
                             <div class="flex-grow">
                                 <h3 class="font-semibold text-sm">${product.name}</h3>
                                 <p class="font-semibold text-sm mt-1">₹${product.salePrice.toLocaleString('en-IN')}</p>
@@ -535,6 +629,12 @@
             function renderProducts() {
                 if (!productGrid) return;
                 productGrid.innerHTML = '';
+                 if (products.length === 0) {
+                    if(!isFirebaseInitialized && demoProducts.length === 0) return;
+                    productGrid.innerHTML = `<p class="col-span-full text-center text-gray-500">No products found. Add products in the admin panel to get started.</p>`;
+                    productCountEl.textContent = 0;
+                    return;
+                }
                 
                 products.forEach(product => {
                     const discount = Math.round(((product.originalPrice - product.salePrice) / product.originalPrice) * 100);
@@ -545,8 +645,8 @@
                     
                     card.innerHTML = `
                         <div class="relative w-full aspect-[3/4] overflow-hidden rounded-md bg-gray-200">
-                            <img src="${product.image1}" alt="${product.name}" class="product-card-image primary absolute inset-0 h-full w-full object-cover">
-                            <img src="${product.image2}" alt="${product.name} alternate view" class="product-card-image secondary absolute inset-0 h-full w-full object-cover opacity-0">
+                            <img src="${product.imageUrls[0]}" alt="${product.name}" class="product-card-image primary absolute inset-0 h-full w-full object-cover">
+                            <img src="${product.imageUrls.length > 1 ? product.imageUrls[1] : product.imageUrls[0]}" alt="${product.name} alternate view" class="product-card-image secondary absolute inset-0 h-full w-full object-cover opacity-0">
                             <div class="absolute top-3 left-3 bg-white text-red-700 text-xs font-semibold px-2 py-1 rounded-full z-10">
                                 ${discount}% OFF
                             </div>
@@ -589,14 +689,6 @@
             
             function updateWishlistCount() {
                 wishlistCountEl.textContent = wishlist.length;
-            }
-
-            function showToast(message) {
-                toast.textContent = message;
-                toast.classList.remove('opacity-0', 'translate-y-20');
-                setTimeout(() => {
-                    toast.classList.add('opacity-0', 'translate-y-20');
-                }, 2000);
             }
 
             function handleAddToCart(productId, quantity = 1) {
@@ -658,6 +750,7 @@
             function closePanels() {
                 cartPanel.classList.add('translate-x-full');
                 wishlistPanel.classList.add('translate-x-full');
+                adminPanel.classList.add('translate-x-full');
                 panelOverlay.classList.add('opacity-0');
                 setTimeout(() => panelOverlay.classList.add('hidden'), 300);
                 body.classList.remove('panel-open');
@@ -676,7 +769,6 @@
                  contentEl.classList.add('scale-95');
                 setTimeout(() => {
                     modalEl.classList.add('hidden');
-                     // Reset checkout modal on close
                     if (modalEl === checkoutModal) {
                         setTimeout(() => {
                              addressStep.classList.remove('hidden');
@@ -694,7 +786,7 @@
                 const isWishlisted = wishlist.includes(product.id);
                 productModalContent.innerHTML = `
                     <div class="w-full md:w-1/2 p-4">
-                        <img src="${product.image1}" alt="${product.name}" class="w-full h-full object-cover rounded-lg">
+                        <img src="${product.imageUrls[0]}" alt="${product.name}" class="w-full h-full object-cover rounded-lg">
                     </div>
                     <div class="w-full md:w-1/2 p-6 flex flex-col justify-center relative">
                         <button id="product-modal-close-btn" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 z-10">
@@ -749,7 +841,7 @@
             productGrid.addEventListener('click', function(e) {
                 const card = e.target.closest('.product-card');
                 if (!card) return;
-                const productId = parseInt(card.dataset.productId);
+                const productId = card.dataset.productId;
                 const product = products.find(p => p.id === productId);
                 if (!product) return;
                 
@@ -764,7 +856,7 @@
 
             cartItemsContainer.addEventListener('click', function(e) {
                 if (e.target.closest('.remove-from-cart-btn')) {
-                    const productId = parseInt(e.target.closest('[data-product-id]').dataset.productId);
+                    const productId = e.target.closest('[data-product-id]').dataset.productId;
                     handleRemoveFromCart(productId);
                 }
             });
@@ -772,7 +864,7 @@
             wishlistItemsContainer.addEventListener('click', function(e) {
                 const itemEl = e.target.closest('[data-product-id]');
                 if (!itemEl) return;
-                const productId = parseInt(itemEl.dataset.productId);
+                const productId = itemEl.dataset.productId;
 
                 if (e.target.closest('.remove-from-wishlist-btn')) {
                     handleToggleWishlist(productId, null);
@@ -822,7 +914,6 @@
                 confirmationStep.classList.remove('hidden');
                 checkoutTitle.textContent = "Order Confirmed";
                 orderIdEl.textContent = generateOrderId();
-                // Clear cart
                 cart = [];
                 updateCartCount();
                 renderCart();
@@ -831,6 +922,116 @@
             continueShoppingBtn.addEventListener('click', () => {
                 closeModal(checkoutModal, checkoutModalContent);
             });
+
+            // Admin Logic
+            adminAccessBtn.addEventListener('click', () => {
+                 if (!isFirebaseInitialized) {
+                    showToast("Admin Panel requires Firebase connection.", true);
+                    const firebaseAlert = document.getElementById('firebase-alert');
+                    if(firebaseAlert) firebaseAlert.classList.remove('hidden');
+                    window.scrollTo(0, 0);
+                    return;
+                }
+                openModal(adminLoginModal, adminLoginContent);
+            });
+
+            cancelLoginBtn.addEventListener('click', () => {
+                closeModal(adminLoginModal, adminLoginContent);
+            });
+
+            adminLoginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const username = e.target.querySelector('#admin-username').value;
+                const password = e.target.querySelector('#admin-password').value;
+
+                if (username === '8948581236' && password === '9336736983') {
+                    loginError.classList.add('hidden');
+                    closeModal(adminLoginModal, adminLoginContent);
+                    openPanel(adminPanel);
+                } else {
+                    loginError.classList.remove('hidden');
+                }
+            });
+            
+            closeAdminPanel.addEventListener('click', closePanels);
+
+            productImagesInput.addEventListener('change', (e) => {
+                uploadedFiles = Array.from(e.target.files);
+                imagePreviewsContainer.innerHTML = '';
+                uploadedFiles.forEach((file, index) => {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        const previewWrapper = document.createElement('div');
+                        previewWrapper.className = 'image-preview-item w-20 h-20';
+                        previewWrapper.innerHTML = `
+                            <img src="${event.target.result}" class="w-full h-full object-cover rounded-md">
+                            <button type="button" class="remove-image-btn p-1" data-index="${index}">&times;</button>
+                        `;
+                        imagePreviewsContainer.appendChild(previewWrapper);
+                    }
+                    reader.readAsDataURL(file);
+                });
+            });
+
+            imagePreviewsContainer.addEventListener('click', (e) => {
+                if(e.target.classList.contains('remove-image-btn')) {
+                    const indexToRemove = parseInt(e.target.dataset.index, 10);
+                    uploadedFiles.splice(indexToRemove, 1);
+                    const dataTransfer = new DataTransfer();
+                    uploadedFiles.forEach(file => dataTransfer.items.add(file));
+                    productImagesInput.files = dataTransfer.files;
+                    productImagesInput.dispatchEvent(new Event('change'));
+                }
+            });
+
+            addProductForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                if (uploadedFiles.length === 0) {
+                    showToast("Please upload at least one image.", true);
+                    return;
+                }
+
+                addProductSubmitBtn.disabled = true;
+                addProductSubmitBtn.innerHTML = `
+                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span>Uploading...</span>`;
+
+                try {
+                    const productsCollection = collection(db, "products");
+                    const imageUrls = await Promise.all(
+                        uploadedFiles.map(file => {
+                            const storageRef = ref(storage, `products/${Date.now()}-${file.name}`);
+                            return uploadBytes(storageRef, file).then(snapshot => getDownloadURL(snapshot.ref));
+                        })
+                    );
+
+                    const newProduct = {
+                        name: document.getElementById('product-name').value,
+                        description: document.getElementById('product-description').value,
+                        originalPrice: parseFloat(document.getElementById('product-original-price').value),
+                        salePrice: parseFloat(document.getElementById('product-sale-price').value),
+                        imageUrls: imageUrls
+                    };
+
+                    await addDoc(productsCollection, newProduct);
+                    
+                    showToast("Product added successfully!");
+                    addProductForm.reset();
+                    imagePreviewsContainer.innerHTML = '';
+                    uploadedFiles = [];
+
+                } catch (error) {
+                    console.error("Error adding product:", error);
+                    showToast("Failed to add product. See console for details.", true);
+                } finally {
+                     addProductSubmitBtn.disabled = false;
+                     addProductSubmitBtn.innerHTML = `<span>Add Product</span>`;
+                }
+            });
+
 
             // General UI Clicks
             productModal.addEventListener('click', (e) => { if (e.target === productModal) closeModal(productModal, productModalContent); });
@@ -849,7 +1050,6 @@
 
 
             // --- INITIAL RENDER ---
-            renderProducts();
             updateCartCount();
             updateWishlistCount();
         });
