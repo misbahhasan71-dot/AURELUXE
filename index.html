@@ -83,6 +83,11 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             cursor: pointer;
         }
+        /* Auth Modal Tabs */
+        .tab-btn.active {
+            border-bottom-color: #1f2937; /* gray-800 */
+            font-weight: 600;
+        }
     </style>
 </head>
 <body class="text-gray-800">
@@ -298,6 +303,34 @@
         </div>
     </div>
 
+    <!-- Profile Panel -->
+    <div id="profile-panel" class="side-panel fixed top-0 right-0 h-full w-full max-w-sm bg-white shadow-lg z-[70] transform translate-x-full flex flex-col">
+        <div class="flex items-center justify-between p-4 border-b">
+            <h2 class="text-xl font-serif font-semibold">My Profile</h2>
+            <button id="close-profile-panel" class="text-gray-600 hover:text-gray-900">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+        </div>
+        <div class="flex-grow p-4 overflow-y-auto space-y-6">
+            <div>
+                <h3 class="font-semibold text-lg mb-2">Order History</h3>
+                <div id="order-history-container" class="space-y-4"></div>
+            </div>
+             <div>
+                <h3 class="font-semibold text-lg mb-2">Saved Addresses</h3>
+                <div id="saved-addresses-container" class="space-y-2"></div>
+                <form id="add-address-form" class="mt-4 space-y-2 border-t pt-4">
+                     <input type="text" placeholder="Full Name" required class="w-full border-gray-300 rounded-md p-2 text-sm">
+                     <textarea placeholder="Full Address" required rows="2" class="w-full border-gray-300 rounded-md p-2 text-sm"></textarea>
+                     <button type="submit" class="w-full bg-gray-800 text-white py-2 rounded-md text-sm">Save New Address</button>
+                </form>
+            </div>
+        </div>
+        <div class="p-4 border-t">
+            <button id="logout-btn" class="w-full bg-red-600 text-white py-3 rounded-md hover:bg-red-700 transition font-semibold">Logout</button>
+        </div>
+    </div>
+
 
     <!-- Product Modal -->
     <div id="product-modal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[60] hidden opacity-0">
@@ -317,16 +350,22 @@
                
                 <!-- Step 1: Address Form -->
                 <div id="address-step">
-                    <form id="address-form" class="space-y-4">
-                        <input type="text" placeholder="Full Name" required class="w-full border-gray-300 rounded-md p-2 text-sm">
-                        <textarea placeholder="Shipping Address" required rows="3" class="w-full border-gray-300 rounded-md p-2 text-sm"></textarea>
+                    <div class="mb-4">
+                        <label for="saved-address-select" class="block text-sm font-medium text-gray-700">Use a saved address:</label>
+                        <select id="saved-address-select" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                            <option value="">-- Select an address --</option>
+                        </select>
+                    </div>
+                    <form id="address-form" class="space-y-4 border-t pt-4">
+                        <input name="fullName" type="text" placeholder="Full Name" required class="w-full border-gray-300 rounded-md p-2 text-sm">
+                        <textarea name="address" placeholder="Shipping Address" required rows="3" class="w-full border-gray-300 rounded-md p-2 text-sm"></textarea>
                         <div class="grid grid-cols-2 gap-4">
-                            <input type="text" placeholder="City" required class="w-full border-gray-300 rounded-md p-2 text-sm">
-                            <input type="text" placeholder="State" required class="w-full border-gray-300 rounded-md p-2 text-sm">
+                            <input name="city" type="text" placeholder="City" required class="w-full border-gray-300 rounded-md p-2 text-sm">
+                            <input name="state" type="text" placeholder="State" required class="w-full border-gray-300 rounded-md p-2 text-sm">
                         </div>
                         <div class="grid grid-cols-2 gap-4">
-                            <input type="text" placeholder="Pincode" required class="w-full border-gray-300 rounded-md p-2 text-sm">
-                            <input type="tel" placeholder="Phone Number" required class="w-full border-gray-300 rounded-md p-2 text-sm">
+                            <input name="pincode" type="text" placeholder="Pincode" required class="w-full border-gray-300 rounded-md p-2 text-sm">
+                            <input name="phone" type="tel" placeholder="Phone Number" required class="w-full border-gray-300 rounded-md p-2 text-sm">
                         </div>
                         <button type="submit" class="w-full bg-gray-900 text-white py-3 rounded-md hover:bg-gray-700 transition font-semibold">Continue to Payment</button>
                     </form>
@@ -354,6 +393,40 @@
                     <button id="continue-shopping-btn" class="w-full bg-gray-900 text-white py-3 rounded-md hover:bg-gray-700 transition font-semibold mt-6">Continue Shopping</button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Auth Modal -->
+    <div id="auth-modal" class="modal-overlay fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-[90] hidden opacity-0">
+        <div id="auth-modal-content" class="modal-content bg-white rounded-lg w-full max-w-sm transform scale-95 p-6">
+             <div class="flex justify-between items-start">
+                <h2 class="text-2xl font-serif font-bold mb-4">Welcome</h2>
+                <button id="auth-close-btn" class="text-gray-500 hover:text-gray-800 text-2xl font-bold">&times;</button>
+            </div>
+            <div class="border-b mb-4">
+                <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+                    <button id="login-tab-btn" class="tab-btn whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm active">Log In</button>
+                    <button id="signup-tab-btn" class="tab-btn whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm">Sign Up</button>
+                </nav>
+            </div>
+            <!-- Login Form -->
+            <form id="login-form">
+                <div class="space-y-4">
+                    <input id="login-email" type="email" placeholder="Email Address" required class="w-full border-gray-300 rounded-md p-2 text-sm">
+                    <input id="login-password" type="password" placeholder="Password" required class="w-full border-gray-300 rounded-md p-2 text-sm">
+                    <p id="login-auth-error" class="text-red-500 text-sm hidden"></p>
+                    <button type="submit" class="w-full bg-gray-900 text-white py-2.5 rounded-md hover:bg-gray-700 transition font-semibold">Log In</button>
+                </div>
+            </form>
+             <!-- Signup Form -->
+            <form id="signup-form" class="hidden">
+                <div class="space-y-4">
+                    <input id="signup-email" type="email" placeholder="Email Address" required class="w-full border-gray-300 rounded-md p-2 text-sm">
+                    <input id="signup-password" type="password" placeholder="Password (min. 6 characters)" required class="w-full border-gray-300 rounded-md p-2 text-sm">
+                    <p id="signup-auth-error" class="text-red-500 text-sm hidden"></p>
+                    <button type="submit" class="w-full bg-gray-900 text-white py-2.5 rounded-md hover:bg-gray-700 transition font-semibold">Create Account</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -414,7 +487,7 @@
             apiKey: "AIzaSyCkf7HhjB6hvFgwpYSaeQEZttun7I4G7ds",
             authDomain: "aureluxe-e4622.firebaseapp.com",
             projectId: "aureluxe-e4622",
-            storageBucket: "aureluxe-e4622.appspot.com", // Corrected from .firebasestorage.app
+            storageBucket: "aureluxe-e4622.appspot.com",
             messagingSenderId: "92928988705",
             appId: "1:92928988705:web:69541cd876606c67aa7560",
             measurementId: "G-XMCWQ4WC56"
@@ -422,9 +495,9 @@
 
         // Import the functions you need from the SDKs
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot, addDoc, doc, setDoc, getDocs, deleteDoc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
-        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         
         let db, storage, auth;
         let isFirebaseInitialized = false;
@@ -456,6 +529,14 @@
             // Product Modal elements
             const productModal = document.getElementById('product-modal');
             const productModalContent = document.getElementById('modal-content');
+
+            // Profile Panel elements
+            const profilePanel = document.getElementById('profile-panel');
+            const closeProfilePanelBtn = document.getElementById('close-profile-panel');
+            const orderHistoryContainer = document.getElementById('order-history-container');
+            const savedAddressesContainer = document.getElementById('saved-addresses-container');
+            const addAddressForm = document.getElementById('add-address-form');
+            const logoutBtn = document.getElementById('logout-btn');
             
             // Checkout Modal elements
             const checkoutModal = document.getElementById('checkout-modal');
@@ -466,12 +547,25 @@
             const paymentStep = document.getElementById('payment-step');
             const confirmationStep = document.getElementById('confirmation-step');
             const addressForm = document.getElementById('address-form');
+            const savedAddressSelect = document.getElementById('saved-address-select');
             const backToAddressBtn = document.getElementById('back-to-address-btn');
             const paymentDoneBtn = document.getElementById('payment-done-btn');
             const continueShoppingBtn = document.getElementById('continue-shopping-btn');
             const orderIdEl = document.getElementById('order-id');
             const qrCodeContainer = document.getElementById('qrcode');
             let qrCodeInstance = null;
+            let currentCheckoutAddress = {};
+
+            // Auth Modal elements
+            const authModal = document.getElementById('auth-modal');
+            const authModalContent = document.getElementById('auth-modal-content');
+            const authCloseBtn = document.getElementById('auth-close-btn');
+            const loginTabBtn = document.getElementById('login-tab-btn');
+            const signupTabBtn = document.getElementById('signup-tab-btn');
+            const loginForm = document.getElementById('login-form');
+            const signupForm = document.getElementById('signup-form');
+            const loginAuthError = document.getElementById('login-auth-error');
+            const signupAuthError = document.getElementById('signup-auth-error');
 
             // Admin elements
             const adminAccessBtn = document.getElementById('admin-access-btn');
@@ -516,11 +610,8 @@
                 storage = getStorage(app);
                 auth = getAuth(app);
                 
-                signInAnonymously(auth).catch((error) => {
-                    console.error("Anonymous sign-in failed:", error);
-                });
-
                 listenForProducts();
+                setupAuthListener();
                 isFirebaseInitialized = true;
 
             } catch (error) {
@@ -535,6 +626,8 @@
             let cart = []; // Array of objects: { id: productId, quantity: number }
             let wishlist = []; // Array of product IDs
             let uploadedFiles = [];
+            let currentUser = null;
+            let userAddresses = [];
             
             // --- DEMO DATA (Fallback) ---
             const demoProducts = [
@@ -545,13 +638,13 @@
             ];
 
             function initializeDemoMode() {
-                showToast("Running in Demo Mode. Connect Firebase to enable Admin features.");
+                showToast("Running in Demo Mode. Connect Firebase to use all features.");
                 products = demoProducts;
                 if(loadingIndicator) loadingIndicator.classList.add('hidden');
                 renderProducts();
             }
 
-            // --- FETCH PRODUCTS from Firestore ---
+            // --- FETCH & LISTEN FOR DATA ---
             function listenForProducts() {
                 const productsCollection = collection(db, "products");
                 onSnapshot(productsCollection, (snapshot) => {
@@ -561,6 +654,46 @@
                 }, (error) => {
                     console.error("Error fetching products:", error);
                     if(loadingIndicator) loadingIndicator.innerHTML = `<p class="text-red-500">Could not load products. Ensure Firestore is enabled and rules are set.</p>`;
+                });
+            }
+
+            let ordersUnsubscribe;
+            let addressesUnsubscribe;
+
+            function listenForUserData(userId) {
+                // Unsubscribe from previous listeners if they exist
+                if (ordersUnsubscribe) ordersUnsubscribe();
+                if (addressesUnsubscribe) addressesUnsubscribe();
+                
+                // Listen for orders
+                const ordersQuery = query(collection(db, `users/${userId}/orders`), orderBy('createdAt', 'desc'));
+                ordersUnsubscribe = onSnapshot(ordersQuery, snapshot => {
+                    const orders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    renderOrderHistory(orders);
+                });
+
+                // Listen for addresses
+                const addressesQuery = query(collection(db, `users/${userId}/addresses`), orderBy('createdAt', 'desc'));
+                addressesUnsubscribe = onSnapshot(addressesQuery, snapshot => {
+                    userAddresses = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    renderSavedAddresses(userAddresses);
+                });
+            }
+
+            // --- AUTHENTICATION ---
+            function setupAuthListener() {
+                onAuthStateChanged(auth, user => {
+                    if (user) {
+                        currentUser = user;
+                        listenForUserData(user.uid);
+                    } else {
+                        currentUser = null;
+                        // Clear user-specific data
+                        if (ordersUnsubscribe) ordersUnsubscribe();
+                        if (addressesUnsubscribe) addressesUnsubscribe();
+                        orderHistoryContainer.innerHTML = '<p class="text-sm text-gray-500">Log in to see your orders.</p>';
+                        savedAddressesContainer.innerHTML = '<p class="text-sm text-gray-500">Log in to see your addresses.</p>';
+                    }
                 });
             }
 
@@ -674,6 +807,49 @@
                     productCountEl.textContent = products.length;
                 }
             }
+
+            function renderOrderHistory(orders) {
+                orderHistoryContainer.innerHTML = '';
+                if (orders.length === 0) {
+                    orderHistoryContainer.innerHTML = `<p class="text-sm text-gray-500">You haven't placed any orders yet.</p>`;
+                    return;
+                }
+                orders.forEach(order => {
+                    const orderDate = order.createdAt.toDate().toLocaleDateString();
+                    const itemsHtml = order.items.map(item => `<li class="text-xs text-gray-600">${item.name} (x${item.quantity})</li>`).join('');
+                    orderHistoryContainer.innerHTML += `
+                        <div class="border p-3 rounded-md bg-gray-50">
+                            <div class="flex justify-between items-center">
+                                <p class="font-semibold text-sm">${order.id}</p>
+                                <p class="text-xs text-gray-500">${orderDate}</p>
+                            </div>
+                            <p class="text-sm my-1">Total: <span class="font-medium">₹${order.total.toLocaleString('en-IN')}</span></p>
+                            <ul class="list-disc list-inside">${itemsHtml}</ul>
+                        </div>
+                    `;
+                });
+            }
+
+            function renderSavedAddresses(addresses) {
+                savedAddressesContainer.innerHTML = '';
+                savedAddressSelect.innerHTML = '<option value="">-- Select an address --</option>'; // Reset dropdown
+                if (addresses.length === 0) {
+                     savedAddressesContainer.innerHTML = `<p class="text-sm text-gray-500">You have no saved addresses.</p>`;
+                     return;
+                }
+                 addresses.forEach(addr => {
+                    savedAddressesContainer.innerHTML += `
+                        <div class="border p-2 rounded-md bg-gray-50 text-sm flex justify-between items-start">
+                           <div>
+                             <p class="font-semibold">${addr.fullName}</p>
+                             <p class="text-xs text-gray-600">${addr.address}, ${addr.city}, ${addr.state} - ${addr.pincode}</p>
+                           </div>
+                           <button data-id="${addr.id}" class="delete-address-btn text-red-500 text-xs hover:underline">Delete</button>
+                        </div>
+                    `;
+                    savedAddressSelect.innerHTML += `<option value="${addr.id}">${addr.fullName} - ${addr.city}</option>`;
+                 });
+            }
             
             // --- UI & STATE HANDLER FUNCTIONS ---
 
@@ -751,6 +927,7 @@
                 cartPanel.classList.add('translate-x-full');
                 wishlistPanel.classList.add('translate-x-full');
                 adminPanel.classList.add('translate-x-full');
+                profilePanel.classList.add('translate-x-full');
                 panelOverlay.classList.add('opacity-0');
                 setTimeout(() => panelOverlay.classList.add('hidden'), 300);
                 body.classList.remove('panel-open');
@@ -875,6 +1052,11 @@
             
             cartFooter.addEventListener('click', (e) => {
                 if(e.target.id === 'proceed-to-checkout-btn') {
+                    if (!currentUser) {
+                        showToast("Please log in to proceed to checkout.", true);
+                        openModal(authModal, authModalContent);
+                        return;
+                    }
                     closePanels();
                     openModal(checkoutModal, checkoutModalContent);
                 }
@@ -882,6 +1064,16 @@
 
             addressForm.addEventListener('submit', (e) => {
                 e.preventDefault();
+                const formData = new FormData(e.target);
+                currentCheckoutAddress = {
+                    fullName: formData.get('fullName'),
+                    address: formData.get('address'),
+                    city: formData.get('city'),
+                    state: formData.get('state'),
+                    pincode: formData.get('pincode'),
+                    phone: formData.get('phone'),
+                };
+
                 addressStep.classList.add('hidden');
                 paymentStep.classList.remove('hidden');
                 checkoutTitle.textContent = "Complete Payment";
@@ -903,33 +1095,161 @@
                 });
             });
 
+            savedAddressSelect.addEventListener('change', (e) => {
+                const selectedId = e.target.value;
+                if (!selectedId) {
+                    addressForm.reset();
+                    return;
+                }
+                const selectedAddr = userAddresses.find(addr => addr.id === selectedId);
+                if (selectedAddr) {
+                    addressForm.querySelector('[name="fullName"]').value = selectedAddr.fullName;
+                    addressForm.querySelector('[name="address"]').value = selectedAddr.address;
+                    addressForm.querySelector('[name="city"]').value = selectedAddr.city;
+                    addressForm.querySelector('[name="state"]').value = selectedAddr.state;
+                    addressForm.querySelector('[name="pincode"]').value = selectedAddr.pincode;
+                    addressForm.querySelector('[name="phone"]').value = selectedAddr.phone;
+                }
+            });
+
             backToAddressBtn.addEventListener('click', () => {
                 paymentStep.classList.add('hidden');
                 addressStep.classList.remove('hidden');
                 checkoutTitle.textContent = "Shipping Address";
             });
             
-            paymentDoneBtn.addEventListener('click', () => {
-                paymentStep.classList.add('hidden');
-                confirmationStep.classList.remove('hidden');
-                checkoutTitle.textContent = "Order Confirmed";
-                orderIdEl.textContent = generateOrderId();
-                cart = [];
-                updateCartCount();
-                renderCart();
+            paymentDoneBtn.addEventListener('click', async () => {
+                const orderId = generateOrderId();
+                const orderItems = cart.map(item => {
+                    const product = products.find(p => p.id === item.id);
+                    return { id: item.id, name: product.name, quantity: item.quantity, price: product.salePrice };
+                });
+                const orderTotal = orderItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+                const orderData = {
+                    id: orderId,
+                    createdAt: serverTimestamp(),
+                    items: orderItems,
+                    total: orderTotal,
+                    shippingAddress: currentCheckoutAddress
+                };
+                
+                try {
+                    await addDoc(collection(db, `users/${currentUser.uid}/orders`), orderData);
+                    paymentStep.classList.add('hidden');
+                    confirmationStep.classList.remove('hidden');
+                    checkoutTitle.textContent = "Order Confirmed";
+                    orderIdEl.textContent = orderId;
+                    cart = [];
+                    updateCartCount();
+                    renderCart();
+                } catch (error) {
+                    console.error("Error saving order:", error);
+                    showToast("Could not save your order. Please try again.", true);
+                }
             });
 
             continueShoppingBtn.addEventListener('click', () => {
                 closeModal(checkoutModal, checkoutModalContent);
             });
 
+            // Auth Logic
+            profileButton.addEventListener('click', () => {
+                if (currentUser) {
+                    openPanel(profilePanel);
+                } else {
+                    openModal(authModal, authModalContent);
+                }
+            });
+
+            authCloseBtn.addEventListener('click', () => closeModal(authModal, authModalContent));
+            loginTabBtn.addEventListener('click', () => {
+                loginTabBtn.classList.add('active');
+                signupTabBtn.classList.remove('active');
+                loginForm.classList.remove('hidden');
+                signupForm.classList.add('hidden');
+            });
+             signupTabBtn.addEventListener('click', () => {
+                signupTabBtn.classList.add('active');
+                loginTabBtn.classList.remove('active');
+                signupForm.classList.remove('hidden');
+                loginForm.classList.add('hidden');
+            });
+
+            loginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const email = loginForm['login-email'].value;
+                const password = loginForm['login-password'].value;
+                signInWithEmailAndPassword(auth, email, password)
+                    .then(userCredential => {
+                        closeModal(authModal, authModalContent);
+                        showToast('Logged in successfully!');
+                    })
+                    .catch(error => {
+                        loginAuthError.textContent = error.message;
+                        loginAuthError.classList.remove('hidden');
+                    });
+            });
+
+            signupForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const email = signupForm['signup-email'].value;
+                const password = signupForm['signup-password'].value;
+                createUserWithEmailAndPassword(auth, email, password)
+                    .then(userCredential => {
+                        closeModal(authModal, authModalContent);
+                        showToast('Account created successfully!');
+                    })
+                    .catch(error => {
+                        signupAuthError.textContent = error.message;
+                        signupAuthError.classList.remove('hidden');
+                    });
+            });
+
+            logoutBtn.addEventListener('click', () => {
+                signOut(auth).then(() => {
+                    closePanels();
+                    showToast('You have been logged out.');
+                });
+            });
+
+            addAddressForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const newAddress = {
+                    fullName: e.target.querySelector('[placeholder="Full Name"]').value,
+                    address: e.target.querySelector('[placeholder="Full Address"]').value,
+                    createdAt: serverTimestamp(),
+                };
+                try {
+                    await addDoc(collection(db, `users/${currentUser.uid}/addresses`), newAddress);
+                    showToast('Address saved!');
+                    addAddressForm.reset();
+                } catch(error) {
+                    console.error("Error saving address:", error);
+                    showToast('Could not save address.', true);
+                }
+            });
+
+            savedAddressesContainer.addEventListener('click', async (e) => {
+                if (e.target.classList.contains('delete-address-btn')) {
+                    const addressId = e.target.dataset.id;
+                    if (confirm('Are you sure you want to delete this address?')) {
+                        try {
+                            await deleteDoc(doc(db, `users/${currentUser.uid}/addresses`, addressId));
+                            showToast('Address deleted.');
+                        } catch(error) {
+                            console.error("Error deleting address:", error);
+                            showToast('Could not delete address.', true);
+                        }
+                    }
+                }
+            });
+
+
             // Admin Logic
             adminAccessBtn.addEventListener('click', () => {
                  if (!isFirebaseInitialized) {
                     showToast("Admin Panel requires Firebase connection.", true);
-                    const firebaseAlert = document.getElementById('firebase-alert');
-                    if(firebaseAlert) firebaseAlert.classList.remove('hidden');
-                    window.scrollTo(0, 0);
                     return;
                 }
                 openModal(adminLoginModal, adminLoginContent);
@@ -1043,7 +1363,6 @@
             closeCartPanelBtn.addEventListener('click', closePanels);
             wishlistButton.addEventListener('click', () => { renderWishlist(); openPanel(wishlistPanel); });
             closeWishlistPanelBtn.addEventListener('click', closePanels);
-            profileButton.addEventListener('click', () => showToast('Profile feature coming soon!'));
             mobileMenuButton.addEventListener('click', () => mobileMenu.classList.toggle('-translate-x-full'));
             filterBtn.addEventListener('click', () => showToast('Filter feature coming soon!'));
             sortBtn.addEventListener('click', () => showToast('Sort feature coming soon!'));
